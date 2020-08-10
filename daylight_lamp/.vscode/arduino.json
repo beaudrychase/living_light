@@ -1,0 +1,5 @@
+{
+    "port": "/dev/cu.SLAB_USBtoUART",
+    "board": "espressif:esp32:esp32",
+    "configuration": "PartitionScheme=default,FlashMode=qio,FlashFreq=80,FlashSize=4M,UploadSpeed=115200,DebugLevel=none"
+}
