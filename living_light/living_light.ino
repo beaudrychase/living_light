@@ -3,7 +3,6 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <WiFiClientSecure.h>
-#include <ArduinoJson.h>
 #include <UniversalTelegramBot.h>
 #include "constants.h"
 #include "secrets.h"
@@ -28,14 +27,6 @@ void setup() {
     delay(1000);
     Serial.println("Connecting to WiFi..");
   }
-//  xTaskCreatePinnedToCore(
-//    breatheCode,   /* Task function. */
-//    "breathe",     /* name of task. */
-//    20000,       /* Stack size of task */
-//    NULL,        /* parameter of the task */
-//    10,           /* priority of the task */
-//    &breatheTask,      /* Task handle to keep track of created task */
-//    1);          /* pin task to core 0 */
 
   xTaskCreatePinnedToCore(
     networkingCode,   /* Task function. */
@@ -102,7 +93,6 @@ void breatheCode( void * pvParameters ) {
 }
 
 void networkingCode( void * pvParameters ) {
-  const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
   Serial.print("Task2 running on core ");
   Serial.println(xPortGetCoreID());
 
