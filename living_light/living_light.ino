@@ -1,36 +1,44 @@
 #include <FastLED.h>
 #include <SPI.h>
 #include <Wire.h>
+#include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
+#include <UniversalTelegramBot.h>
 #include "constants.h"
-#include "dithering.h"
+#include "secrets.h"
+#include "breath.h"
 
-const float smoothness_pts = SMOOTHNESS;//larger=slower change in brightness
-int cached_brightness[SMOOTHNESS];
-double color_gamma_correction = 1.5;
-double gam = 0.12; // affects the width of peak (more or less darkness)
-double gam2 = 0.10;
-double beta = 0.5; // shifts the gaussian to be symmetric
 
-void breathe(double r, double g, double b) {
-  for (int i = 0; i < smoothness_pts; ++i) {
-    int red = (int) (r * cached_brightness[i]);
-    int green = (int) (g * cached_brightness[i]);
-    int blue = (int) (b * cached_brightness[i]);
-    frame_set_color(red, green, blue);
-    FastLED.show();
-  }
-}
+WiFiClientSecure client;
+UniversalTelegramBot bot(BOTtoken, client);
 
 void setup() {
-  initDither();
+  
   Serial.begin(115200);
   randomSeed(analogRead(0));
-  //gamma correction
-  for (int i = 0; i < SMOOTHNESS; ++i) {
-    cached_brightness[i] = (int) (255.0 * DITHER_LEVEL * pow(255.0 * DITHER_LEVEL * (exp(-(pow(((i / smoothness_pts) - beta) / gam, 2.0)) / 2.0)) / (255.0 * DITHER_LEVEL), 1.0 / color_gamma_correction));
+  initBreathe();
+//  configTime(0, 0, "pool.ntp.org");
+  WiFiClientSecure client;
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
   }
 }
+bool red_bool = true;
+
+void handleNewMessage(){
+  String text = bot.messages[0].text;
+  if (text == "/on"){
+    red_bool = true;
+  } else if (text == "/off"){
+    red_bool = false;
+  }
+}
+
 void loop() {
+  Serial.println(xPortGetCoreID());
   double rand1 = random(4000, 30000) / 100000.0;
   double rand2 = random(1500, 20000) / 100000.0;
   double rand3 = random(500, 10000) / 100000.0;
@@ -38,8 +46,19 @@ void loop() {
   double low = min(rand1, min(rand2, rand3));
   double med = max(min(rand1, rand2), min(rand2, rand3));
   double r = high;
+  
+  
   double g = med;
   double b = low;
+  if (!red_bool){
+    r = 0.0;
+    g = 0.0;
+    b = 0.0;
+  }
   breathe(r, g, b);
+  if (bot.getUpdates(bot.last_message_received + 1)){
+    handleNewMessage();
+  }
+//  bot.sendMessage(CHAT_ID, "This is the living light", "");
 
 }
