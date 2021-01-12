@@ -4,11 +4,12 @@
 #include <Wire.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
+#include <Time.h>
 #include "constants.h"
 #include "secrets.h"
 #include "breath.h"
+#include "time_manager.h"
 
-TaskHandle_t breatheTask;
 TaskHandle_t networkingTask;
 
 WiFiClientSecure client;
@@ -36,8 +37,11 @@ void setup() {
     1,           /* priority of the task */
     &networkingTask,      /* Task handle to keep track of created task */
     0);          /* pin task to core 1 */
+  setCurrentTime();
+  fetchDaylightInfo();
 }
 volatile bool red_bool = true;
+volatile bool isDay = true;
 
 void handleNewMessage() {
   String text = bot.messages[0].text;
@@ -49,58 +53,74 @@ void handleNewMessage() {
 }
 
 void loop() {
-  double rand1 = random(4000, 30000) / 100000.0;
-    double rand2 = random(1500, 20000) / 100000.0;
-    double rand3 = random(500, 10000) / 100000.0;
-    double high = max(rand1, max(rand2, rand3));
-    double low = min(rand1, min(rand2, rand3));
-    double med = max(min(rand1, rand2), min(rand2, rand3));
-    double r = high;
-
-
-    double g = med;
-    double b = low;
-    if (!red_bool) {
-      r = 0.0;
-      g = 0.0;
-      b = 0.0;
-    }
-    breathe(r, g, b);
-
-}
-
-
-void breatheCode( void * pvParameters ) {
-  for (;;) {
-    double rand1 = random(4000, 30000) / 100000.0;
-    double rand2 = random(1500, 20000) / 100000.0;
-    double rand3 = random(500, 10000) / 100000.0;
-    double high = max(rand1, max(rand2, rand3));
-    double low = min(rand1, min(rand2, rand3));
-    double med = max(min(rand1, rand2), min(rand2, rand3));
-    double r = high;
-
-
-    double g = med;
-    double b = low;
-    if (!red_bool) {
-      r = 0.0;
-      g = 0.0;
-      b = 0.0;
-    }
-    breathe(r, g, b);
+  double r = 0.0;
+  double g = 0.0;
+  double b = 0.0;
+  dayColor(r, g, b);
+  if (isDay){
+    dayColor(r, g, b);
+  } else {
+    nightColor(r, g, b);
   }
+  if (!red_bool) {
+    r = 0.0;
+    g = 0.0;
+    b = 0.0;
+  }
+  breathe(r, g, b);
+
 }
+
+void dayColor(double &red, double &green, double &blue) {
+  double rand1 = random(4000, 30000) / 100000.0;
+  double rand2 = random(1500, 20000) / 100000.0;
+  double rand3 = random(500, 10000) / 100000.0;
+  double high = max(rand1, max(rand2, rand3));
+  double low = min(rand1, min(rand2, rand3));
+  double med = max(min(rand1, rand2), min(rand2, rand3));
+  red = low;
+  green = med;
+  blue = high;
+
+}
+
+void nightColor(double &red, double &green, double &blue) {
+  double rand1 = random(4000, 30000) / 100000.0;
+  double rand2 = random(500, 1000) / 100000.0;
+  double rand3 = random(0, 500) / 100000.0;
+  double high = max(rand1, max(rand2, rand3));
+  double low = min(rand1, min(rand2, rand3));
+  double med = max(min(rand1, rand2), min(rand2, rand3));
+  red = high;
+  green = med;
+  blue = low;
+
+}
+
+
 
 void networkingCode( void * pvParameters ) {
   Serial.print("Task2 running on core ");
   Serial.println(xPortGetCoreID());
 
   for (;;) {
-//    vTaskdelay(xDelay);
+    if (currentDay != day(now()) || sunriseTime == 0) {
+      setCurrentTime();
+
+      fetchDaylightInfo();
+    }
+    if( now() > sunsetTime){
+      isDay = false;
+    } else if (now() > sunriseTime){
+      isDay = true;
+    }
     delay(1000);
     if (bot.getUpdates(bot.last_message_received + 1)) {
       handleNewMessage();
     }
+    Serial.print("Now:  ");
+    Serial.println(now());
+    Serial.print("Sunset: ");
+    Serial.println(sunsetTime);
   }
 }
