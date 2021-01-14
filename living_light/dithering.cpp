@@ -55,7 +55,7 @@ void frame_set_color(int red, int green, int blue) {
 //  delay(500);
   if ((actual_frame + 1) % DITHER_LEVEL == 0) {
     count++;
-    if (count % 1000 == 0) {
+    if (count % 10000 == 0) {
       count = 0;
       swap(&frame_array[random(0, DITHER_LEVEL)], &frame_array[random(0, DITHER_LEVEL)]);
     }
