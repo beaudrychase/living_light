@@ -3,6 +3,9 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <WiFiClientSecure.h>
+#include <ESPmDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 #include <UniversalTelegramBot.h>
 #include <Time.h>
 #include "constants.h"
@@ -26,6 +29,7 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");
+    Serial.println(WiFi.status());
   }
 
   xTaskCreatePinnedToCore(
@@ -36,19 +40,64 @@ void setup() {
     1,           /* priority of the task */
     &networkingTask,      /* Task handle to keep track of created task */
     0);          /* pin task to core 1 */
+  // register commands for telegram bot
+  const String commands = F("["
+                            "{\"command\":\"on\",  \"description\":\"Turn light on\"},"
+                            "{\"command\":\"off\", \"description\":\"Turn light off\"},"
+                            "{\"command\":\"ipaddr\", \"description\":\"Get the IP address of the light\"},"
+                            "{\"command\":\"random\",\"description\":\"Toggle random color mode\"}" // no comma on last command
+                            "]");
+  ArduinoOTA
+  .onStart([]() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH)
+      type = "sketch";
+    else // U_SPIFFS
+      type = "filesystem";
+
+    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+    Serial.println("Start updating " + type);
+  })
+  .onEnd([]() {
+    Serial.println("\nEnd");
+  })
+  .onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  })
+  .onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  })
+  .setPassword(OTA_PASS);
+  ArduinoOTA.begin();
+  bot.setMyCommands(commands);
+//  bot.longPoll = 10;
   setCurrentTime();
   fetchDaylightInfo();
 }
-volatile bool red_bool = true;
+volatile bool lightOn = true;
+volatile bool randomModeOn = false;
 volatile bool isDay = true;
 
-void handleNewMessage() {
-  String text = bot.messages[0].text;
-  if (text == "/on") {
-    red_bool = true;
-  } else if (text == "/off") {
-    red_bool = false;
+void handleNewMessages(int numNewMessages) {
+  for (int i = 0; i < numNewMessages; i++) {
+    String text = bot.messages[0].text;
+    Serial.println(bot.messages[0].text);
+    if (text == "/on") {
+      lightOn = true;
+    } else if (text == "/off") {
+      lightOn = false;
+    } else if (text == "/random") {
+      randomModeOn = !randomModeOn;
+    } else if (text == "/ipaddr") {
+      bot.sendMessage(CHAT_ID, WiFi.localIP().toString(), "");
+    }
   }
+
 }
 
 void loop() {
@@ -61,14 +110,15 @@ void loop() {
     nightColor(r, g, b);
   }
 
-
-  if (!red_bool) {
-    r = 0.0;
-    g = 0.0;
-    b = 0.0;
+  if (randomModeOn) {
+    randomColor(r, g, b);
   }
-  breathe(r, g, b);
 
+  if (lightOn) {
+    breathe(r, g, b);
+  } else {
+    turnOff();
+  }
 }
 
 void dayColor(double &red, double &green, double &blue) {
@@ -128,22 +178,26 @@ void networkingCode( void * pvParameters ) {
   Serial.println(xPortGetCoreID());
 
   for (;;) {
-    
-      isDay = now() > sunriseTime && now() < sunsetTime;
-    
+
+    isDay = now() > sunriseTime && now() < sunsetTime;
+
     if (currentDay != day(now()) || sunriseTime == 0) {
       setCurrentTime();
 
       fetchDaylightInfo();
     }
-    
-    delay(1000);
-    if (bot.getUpdates(bot.last_message_received + 1)) {
-      handleNewMessage();
+    if (day(sunsetTime) != day(now())){
+      fetchDaylightInfo();
     }
-//    Serial.print("Now:  ");
-//    Serial.println(now());
-//    Serial.print("Sunset: ");
-//    Serial.println(sunsetTime);
+  delay(1000 * 3);
+    int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+    if (numNewMessages > 0) {
+      handleNewMessages(numNewMessages);
+    }
+    ArduinoOTA.handle();
+    //    Serial.print("Now:  ");
+    //    Serial.println(now());
+    //    Serial.print("Sunset: ");
+    //    Serial.println(sunsetTime);
   }
 }

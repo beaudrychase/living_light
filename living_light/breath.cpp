@@ -28,6 +28,11 @@ void normalizeColor(double brightness, double &r, double &g, double &b) {
   
 }
 
+void turnOff(){
+  frame_set_color(0, 0, 0);
+  FastLED.show();
+}
+
 void breathe(double r, double g, double b) {
   for (int i = 0; i < smoothness_pts; ++i) {
     double increasing = min((double) (i * 3.0) / (double) smoothness_pts, 1.0);

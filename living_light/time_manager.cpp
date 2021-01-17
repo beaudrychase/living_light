@@ -7,9 +7,13 @@ String LATITUDE = "30.267153";
 String LONGITUDE = "-97.743057";
 
 time_t currentTime;
+time_t lastTimeUpdated = 0;
 int currentDay;
 time_t sunriseTime = 0;
 time_t sunsetTime = 0;
+
+time_t twilightBeginTime = 0; // time when morning twilight begins before sunrise
+time_t twilightEndTime = 0; // time when night twilight ends after sunset
 int gmtOffset;
 
 void setCurrentTime() {
@@ -69,6 +73,7 @@ void setCurrentTime() {
 
           // Set the current date
           currentDay = day(now());
+          lastTimeUpdated = now();
         }
       }
     } else {
@@ -130,6 +135,12 @@ void fetchDaylightInfo() {
         } else {
           // Get results from parsed JSON
           const JsonObject& results = doc["results"];
+
+          //Grab twilight begin time
+          const char * twilightBeginParsed = results["astronomical_twilight_begin"];
+          const char * twilightEndParsed = results["astronomical_twilight_end"];
+          twilightBeginTime = timeFromDaylightString(twilightBeginParsed) + gmtOffset;
+          twilightEndTime = timeFromDaylightString(twilightEndParsed) + gmtOffset;
 
           // Grab sunrise time from results
           const char * sunriseParsed = results["sunrise"];

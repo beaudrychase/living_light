@@ -16,7 +16,6 @@ CRGB leds[NUM_LEDS];
 
 const float smoothness_pts = SMOOTHNESS;//larger=slower change in brightness
 int cached_brightness[SMOOTHNESS];
-//int cached_brightness2[SMOOTHNESS];
 double color_gamma_correction = 1.5;
 double gam = 0.12; // affects the width of peak (more or less darkness)
 double gam2 = 0.10;
@@ -35,19 +34,11 @@ int frame = 0;
 int actual_frame = 0;
 inline void dithering(int idx, int r, int g, int b){  
   leds[idx].setRGB(ditherSingle((idx + r_dithering_offset)%DITHER_LEVEL, r), ditherSingle((idx + g_dithering_offset)%DITHER_LEVEL, g), ditherSingle((idx + b_dithering_offset)%DITHER_LEVEL, b));
-//  leds[idx].setRGB(ditherSingle(idx, r), ditherSingle(idx, g), ditherSingle(idx, b));
  
 }
 
 inline int ditherSingle(int idx, int channel){
-//  
-//  if (channel % DITHER_LEVEL <= (idx + frame) % DITHER_LEVEL){
-//    return channel / DITHER_LEVEL;
-//  }
-//  return channel / DITHER_LEVEL + 1;
-    return channel / DITHER_LEVEL + (int) (channel % DITHER_LEVEL > (idx + frame) % DITHER_LEVEL);
-
-  
+    return channel / DITHER_LEVEL + (int) (channel % DITHER_LEVEL > (idx + frame) % DITHER_LEVEL); 
 }
 int count = 0;
 void breathe(double r, double g, double b){   
@@ -104,19 +95,11 @@ void setup() {
   }
   randomize(frame_array, DITHER_LEVEL);
   
-//  for (int i = 0; i < SMOOTHNESS; ++i){
-//    cached_brightness[i] = (int) 255.0* DITHER_LEVEL*(exp(-(pow(((i/smoothness_pts)-beta)/gam,2.0))/2.0));
-//  }
   //gamma correction
   for (int i = 0; i < SMOOTHNESS; ++i){
-//    cached_brightness[i] = (int) (255.0 * DITHER_LEVEL * pow(cached_brightness[i] / (255.0 * DITHER_LEVEL), 1.0 / color_gamma_correction));
       cached_brightness[i] = (int) (255.0 * DITHER_LEVEL * pow(255.0* DITHER_LEVEL*(exp(-(pow(((i/smoothness_pts)-beta)/gam,2.0))/2.0)) / (255.0 * DITHER_LEVEL), 1.0 / color_gamma_correction));
   }
-
   
-//  for (int i = 0; i < SMOOTHNESS; ++i){
-//    cached_brightness2[i] = (int) 255.0* DITHER_LEVEL*(exp(-(pow(((i/smoothness_pts)-beta)/gam2,2.0))/2.0));
-//  }
 }
 void loop() {
   double rand1 = random(4000, 30000) / 100000.0;
