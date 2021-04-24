@@ -1,15 +1,27 @@
+#include <LiquidCrystal.h>
+
+#include <ESPAsyncWebServer.h>
+#include <SPIFFSEditor.h>
+#include <AsyncEventSource.h>
+#include <WebResponseImpl.h>
+#include <WebHandlerImpl.h>
+#include <StringArray.h>
+#include <AsyncWebSynchronization.h>
+#include <AsyncWebSocket.h>
+#include <AsyncJson.h>
+#include <WebAuthentication.h>
+
 #include "secrets.h"
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
 #include "telegramBot.h"
-
 WiFiClientSecure telegramClient;
 UniversalTelegramBot bot(BOTtoken, telegramClient);
 
-void initTelegramBot(WiFiClientSecure wifiClient){
+void initTelegramBot(WiFiClientSecure &wifiClient){
   wifiClient.setCACert(TELEGRAM_CERTIFICATE_ROOT);
   telegramClient = wifiClient;
-//  bot = *(new UniversalTelegramBot(BOTtoken, wifiClient));
+  bot = UniversalTelegramBot(BOTtoken, wifiClient);
   // register commands for telegram bot
   const String commands = F("["
                             "{\"command\":\"on\",  \"description\":\"Turn light on\"},"
@@ -18,6 +30,8 @@ void initTelegramBot(WiFiClientSecure wifiClient){
                             "{\"command\":\"random\",\"description\":\"Toggle random color mode\"}" // no comma on last command
                             "]");
   bot.setMyCommands(commands);
+  bot.sendMessage(CHAT_ID,"just turned on", "");
+  Serial.println("Just set commands");
 }
 
 void handleTelegramMessages(volatile bool &lightOn, volatile bool &randomModeOn){
