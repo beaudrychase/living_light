@@ -3,6 +3,7 @@
 #include <Time.h>
 #include <TimeLib.h>
 #include "secrets.h"
+#include "time_manager.h"
 String LATITUDE = "30.267153";
 String LONGITUDE = "-97.743057";
 
@@ -15,6 +16,11 @@ time_t sunsetTime = 0;
 time_t twilightBeginTime = 0; // time when morning twilight begins before sunrise
 time_t twilightEndTime = 0; // time when night twilight ends after sunset
 int gmtOffset;
+
+void initTime(){
+  setCurrentTime();
+  fetchDaylightInfo();
+}
 
 void setCurrentTime() {
     HTTPClient http;
@@ -32,7 +38,7 @@ void setCurrentTime() {
     if (httpCode > 0) { 
       // Get/print payload from http response
       String payload = http.getString();
-      Serial.println(payload);
+//      Serial.println(payload);
 
       // Check if request was successful with 200 status
       if (httpCode == 200) {
@@ -61,12 +67,12 @@ void setCurrentTime() {
           gmtOffset = doc["gmtOffset"];
 
           // Print out all of that for debugging
-          Serial.print("parsedTime: ");
-          Serial.println(parsedTime);
-          Serial.print("gmtOffset: ");
-          Serial.println(gmtOffset);
-          Serial.print("timestamp: ");
-          Serial.println(timestamp);
+//          Serial.print("parsedTime: ");
+//          Serial.println(parsedTime);
+//          Serial.print("gmtOffset: ");
+//          Serial.println(gmtOffset);
+//          Serial.print("timestamp: ");
+//          Serial.println(timestamp);
 
           // Give the Time library the current time
           setTime(timestamp);
@@ -77,7 +83,8 @@ void setCurrentTime() {
         }
       }
     } else {
-      Serial.println("Error while fetching current time...");
+      
+//      Serial.println("Error while fetching current time...");
     }
 
     // Free resources in use by http client

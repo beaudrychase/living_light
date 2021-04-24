@@ -1,5 +1,8 @@
+extern void initTime();
 extern void setCurrentTime();
 extern void fetchDaylightInfo();
+void setCurrentTime();
+void fetchDaylightInfo();
 time_t timeFromDaylightString(const char* daylightString);
 extern time_t lastTimeUpdated;
 extern time_t sunriseTime;
