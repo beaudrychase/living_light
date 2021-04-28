@@ -1,4 +1,5 @@
-#define SMOOTHNESS 18000
+//#define SMOOTHNESS 18000
+#define SMOOTHNESS 25500
 #define DITHER_LEVEL 34
 #define ROW 8
 #define COL 8

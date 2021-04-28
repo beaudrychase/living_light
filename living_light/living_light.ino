@@ -1,8 +1,6 @@
 //#include <TelegramCertificate.h>
 //#include <UniversalTelegramBot.h>
-#include <WiFiClientSecure.h>
-#include <ESPmDNS.h>
-#include <WiFiUdp.h>
+#include <WiFiClientSecure.h> 
 #include <ArduinoOTA.h>
 #include <Time.h>
 #include "constants.h"
@@ -30,7 +28,7 @@ void setup() {
     Serial.println(WiFi.status());
   }
   initTelegramBot(client);
-  initBreathe();
+  
 //  initTime();
   xTaskCreatePinnedToCore(
     networkingCode,   /* Task function. */
@@ -68,6 +66,7 @@ void setup() {
   })
   .setPassword(OTA_PASS);
   ArduinoOTA.begin();
+  initBreathe();
 
 }
 volatile bool lightOn = true;
@@ -98,10 +97,10 @@ void loop() {
 }
 
 void dayColor(double &red, double &green, double &blue) {
-  double brightness = 0.23;
+  double brightness = 0.2;
   double rand1 = random(40000000, 300000000) / 1000000000.0;
   double rand2 = random(15000000, 200000000) / 1000000000.0;
-  double rand3 = random(8000000, 100000000) / 1000000000.0;
+  double rand3 = random(10000000, 200000000) / 1000000000.0;
   normalizeColor(brightness, rand1, rand2, rand3);
   double high = max(rand1, max(rand2, rand3));
   double low = min(rand1, min(rand2, rand3));
@@ -113,7 +112,7 @@ void dayColor(double &red, double &green, double &blue) {
 }
 
 void nightColor(double &red, double &green, double &blue) {
-  double brightness = 0.15;
+  double brightness = 0.18  ;
   double rand1 = random(160000000, 600000000) / 2000000000.0;
   double rand2 = random(5000000, 10000000) / 2000000000.0;
   double rand3 = random(0, 200000) / 2000000000.0;
@@ -129,13 +128,13 @@ void nightColor(double &red, double &green, double &blue) {
 
 void randomColor(double &red, double &green, double &blue) {
   double randomNumbers[3];
-  double brightness = 0.23;
+  double brightness = 0.25;
   randomNumbers[0] = random(200000000, 400000000) / 2000000000.0;
-  randomNumbers[1] = random(2000000, 400000000) / 2000000000.0;
+  randomNumbers[1] = random(200000, 400000000) / 2000000000.0;
   randomNumbers[2] = random(200000, 20000000) / 2000000000.0;
   normalizeColor(brightness, randomNumbers[0], randomNumbers[1], randomNumbers[2]);
   for (int i = 0; i < 3; i++) {
-    int n = random(0, 3);  // Integer from 0 to questionCount-1
+    int n = random(0, 3);  
     double temp = randomNumbers[n];
     randomNumbers[n] =  randomNumbers[i];
     randomNumbers[i] = temp;
@@ -165,6 +164,7 @@ void networkingCode( void * pvParameters ) {
       fetchDaylightInfo();
     }
     delay(1000 * 3);
+    Serial.println("before handle telegram");
     handleTelegramMessages(lightOn, randomModeOn);
     ArduinoOTA.handle();
 
