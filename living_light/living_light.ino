@@ -72,6 +72,8 @@ void setup() {
 volatile bool lightOn = true;
 volatile bool randomModeOn = false;
 volatile bool isDay = true;
+volatile int vol_breath_seconds = 0;
+int breath_seconds = 0;
 
 
 
@@ -93,6 +95,10 @@ void loop() {
     breathe(r, g, b);
   } else {
     turnOff();
+  }
+  if (vol_breath_seconds != breath_seconds){
+    breath_seconds = vol_breath_seconds;
+    updateBreathLength(breath_seconds);
   }
 }
 
@@ -164,8 +170,8 @@ void networkingCode( void * pvParameters ) {
       fetchDaylightInfo();
     }
     delay(1000 * 3);
-    Serial.println("before handle telegram");
-    handleTelegramMessages(lightOn, randomModeOn);
+    
+    handleTelegramMessages(lightOn, randomModeOn, vol_breath_seconds);
     ArduinoOTA.handle();
 
   }

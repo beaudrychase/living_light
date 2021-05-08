@@ -35,7 +35,7 @@ void initTelegramBot(WiFiClientSecure &wifiClient){
   Serial.println("Just set commands");
 }
 
-void handleTelegramMessages(volatile bool &lightOn, volatile bool &randomModeOn){
+void handleTelegramMessages(volatile bool &lightOn, volatile bool &randomModeOn, volatile int &breath_length){
   int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
   for (int i = 0; i < numNewMessages; i++) {
     
@@ -60,12 +60,9 @@ void handleTelegramMessages(volatile bool &lightOn, volatile bool &randomModeOn)
         read_number = strtok(NULL, " ");
         //checks that there is something after the space
         if (read_number != 0){
-          Serial.println("found space");
           int number = atoi(read_number);
-          Serial.println(number);
-          Serial.println(read_number);
           if (number > 0 && number <= 17){
-            Serial.println("got valid number");
+            breath_length = number;
           }
           
         }
