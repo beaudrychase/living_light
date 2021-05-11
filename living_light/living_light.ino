@@ -16,10 +16,10 @@ WiFiClientSecure client;
 
 
 void setup() {
+  initBreathe();
 
   Serial.begin(115200);
   randomSeed(analogRead(0));
-
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
@@ -29,7 +29,7 @@ void setup() {
   }
   initTelegramBot(client);
   
-//  initTime();
+  initTime();
   xTaskCreatePinnedToCore(
     networkingCode,   /* Task function. */
     "networking",     /* name of task. */
@@ -66,7 +66,7 @@ void setup() {
   })
   .setPassword(OTA_PASS);
   ArduinoOTA.begin();
-  initBreathe();
+  
 
 }
 volatile bool lightOn = true;

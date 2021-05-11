@@ -1,40 +1,53 @@
 #include <FastLED.h>
+#include "breath.h"
 #include "dithering.h"
 #include "constants.h"
 
-const double smoothness_pts = SMOOTHNESS;//larger=slower change in brightness
-float* cached_brightness;
+double smoothness_pts = SMOOTHNESS;//larger=slower change in brightness
+int breath_length = SMOOTHNESS;
+float  static_cached_brightness[STATIC_SMOOTHNESS];
+float* dynamic_cached_brightness;
+int dynamic_length = SMOOTHNESS - STATIC_SMOOTHNESS;
 double color_gamma_correction = 1.5;
-double gam = 0.14; // affects the width of peak (more or less darkness)
+double gam = 0.13; // affects the width of peak (more or less darkness)
 double beta = 0.5; // shifts the gaussian to be symmetric
 
 double fade_amount = 0.75 * smoothness_pts;
-double oldR = 0.0;
-double oldG = 0.0;
-double oldB = 0.0;
+double oldR = 0.1;
+double oldG = 0.1;
+double oldB = 0.1;
 
 void initBreathe() {
-//  Serial.println(ESP.getFreeHeap());
-  cached_brightness = (float *) malloc(SMOOTHNESS* sizeof(float));
-//  Serial.println(ESP.getFreeHeap());
+  //  Serial.println(ESP.getFreeHeap());
+  dynamic_cached_brightness = (float *) malloc((dynamic_length) * sizeof(float));
   initDither();
-  for (int i = 0; i < SMOOTHNESS; ++i) {
-    cached_brightness[i] = (255.0 * DITHER_LEVEL * pow((exp(-(pow(((((double)i) / smoothness_pts) - beta) / gam, 2.0)) / 2.0)), 1.0 / color_gamma_correction));
-    //    Serial.println("(((double)i) / smoothness_pts) - beta) / gam");
-    //    Serial.println(" ");
-    //    Serial.println("i:");
-    //    Serial.println(i);
-    //    Serial.println("1:");
-    //    Serial.println(((((double)i) / smoothness_pts) - beta) / gam, 5);
-    ////    Serial.println("(pow(((((double)i) / smoothness_pts) - beta) / gam, 2.0))");
-    //    Serial.println("2:");
-    //    Serial.println((pow(((((double)i) / smoothness_pts) - beta) / gam, 2.0)),5);
-    ////    Serial.println("pow(255.0 * DITHER_LEVEL * (exp(-(pow(((((double)i) / smoothness_pts) - beta) / gam, 2.0)) / 2.0)) / (255.0 * DITHER_LEVEL), 1.0 / color_gamma_correction)");
-    //    Serial.println("3:");
-    //    Serial.println(pow(255.0 * DITHER_LEVEL * (exp(-(pow(((((double)i) / smoothness_pts) - beta) / gam, 2.0)) / 2.0)) / (255.0 * DITHER_LEVEL), 1.0 / color_gamma_correction),5);
-    ////
-    //    Serial.println(cached_brightness[i], 5);
-    //    Serial.println((255.0 * DITHER_LEVEL * pow(255.0 * DITHER_LEVEL * (exp(-(pow(((i / smoothness_pts) - beta) / gam, 2.0)) / 2.0)) / (255.0 * DITHER_LEVEL), 1.0 / color_gamma_correction)),5);
+  for (int i = 0; i < STATIC_SMOOTHNESS; ++i) {
+    static_cached_brightness[i] = computeBrightnessVal(i, smoothness_pts);
+  }
+  for (int i = 0; i < dynamic_length; ++i) {
+    dynamic_cached_brightness[i] = computeBrightnessVal(i + STATIC_SMOOTHNESS, smoothness_pts);
+  }
+}
+
+inline float computeBrightnessVal(int step, double total_steps) {
+  return (255.0 * DITHER_LEVEL * pow((exp(-(pow(((((double)step) / total_steps) - beta) / gam, 2.0)) / 2.0)), 1.0 / color_gamma_correction));
+}
+
+void updateBreathLength(int new_len_sec) {
+  breath_length = new_len_sec * 1500;
+  smoothness_pts = ((double) breath_length);
+  if (breath_length > STATIC_SMOOTHNESS) {
+    for (int i = 0; i < STATIC_SMOOTHNESS; i++) {
+      static_cached_brightness[i] = computeBrightnessVal(i, smoothness_pts);
+    }
+    for (int i = STATIC_SMOOTHNESS; i < breath_length; ++i) {
+      dynamic_cached_brightness[i - STATIC_SMOOTHNESS] = computeBrightnessVal(i, smoothness_pts);
+    }
+  } else {
+    for (int i = 0; i < breath_length; ++i) {
+      static_cached_brightness[i] = computeBrightnessVal(i, smoothness_pts);
+    }
+
   }
 }
 
@@ -51,26 +64,28 @@ void turnOff() {
   FastLED.show();
 }
 
-void breathe(double r, double g, double b) {
-  for (int i = 0; i < smoothness_pts; ++i) {
-    double increasing = min((double) (i * 3.0) / smoothness_pts, 1.0);
-    double decreasing = max((double)(smoothness_pts - i * 3.0) / smoothness_pts, 0.0);
-    double smooth_r = r * increasing + oldR * decreasing;
-    double smooth_g = g * increasing + oldG * decreasing;
-    double smooth_b = b * increasing + oldB * decreasing;
-    double smoothed_cached_brightness = cached_brightness[i] / (smooth_r + smooth_g + smooth_b) / 3.0;
+
+void breath_iteration(double r, double g, double b, int array_len, float* brightness_array, int offset) {
+  for (int i = 0; i < array_len; ++i) {
+    double increasing = min((i + offset) * 3.0, smoothness_pts) / smoothness_pts;
+    //    double decreasing = max((double)(smoothness_pts - (i + offset) * 3.0) / smoothness_pts, 0.0);
+    double smooth_r = r * increasing + oldR * (1.0 - increasing);
+    double smooth_g = g * increasing + oldG * (1.0 - increasing);
+    double smooth_b = b * increasing + oldB * (1.0 - increasing);
+    double smoothed_cached_brightness = brightness_array[i] / (smooth_r + smooth_g + smooth_b) / 3.0;
 
     int red = (int) (smooth_r * smoothed_cached_brightness);
     int green = (int) (smooth_g * smoothed_cached_brightness);
     int blue = (int) (smooth_b * smoothed_cached_brightness);
-    //
-    //    int red = (int) ((r * increasing + oldR * decreasing) * cached_brightness[i]);
-    //    int green = (int) ((g * increasing + oldG * decreasing) * cached_brightness[i]);
-    //    int blue = (int) ((b * increasing + oldB * decreasing) * cached_brightness[i]);
     frame_set_color(red, green, blue);
     FastLED.show();
   }
-//  Serial.println(ESP.getFreeHeap());
+
+}
+
+void breathe(double r, double g, double b) {
+  breath_iteration(r, g, b, STATIC_SMOOTHNESS, static_cached_brightness, 0);
+  breath_iteration(r, g, b, dynamic_length, dynamic_cached_brightness, STATIC_SMOOTHNESS);
   oldR = r;
   oldG = g;
   oldB = b;

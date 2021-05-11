@@ -52,13 +52,13 @@ void frame_set_color(int red, int green, int blue) {
       dithering(getIdx(r, c), red, green, blue);
     }
   }
-  if ((actual_frame + 1) % DITHER_LEVEL == 0) {
-    count++;
-    if (count % 10000 == 0) {
-      count = 0;
-      swap(&frame_array[random(0, DITHER_LEVEL)], &frame_array[random(0, DITHER_LEVEL)]);
-    }
-  }
+//  if ((actual_frame + 1) % DITHER_LEVEL == 0) {
+//    count++;
+//    if (count % 100000 == 0) {
+//      count = 0;
+//      swap(&frame_array[random(0, DITHER_LEVEL)], &frame_array[random(0, DITHER_LEVEL)]);
+//    }
+//  }
   actual_frame = (actual_frame + 1) % DITHER_LEVEL;
   frame = frame_array[actual_frame];
 }

@@ -16,7 +16,8 @@ time_t sunsetTime = 0;
 time_t twilightBeginTime = 0; // time when morning twilight begins before sunrise
 time_t twilightEndTime = 0; // time when night twilight ends after sunset
 int gmtOffset;
-
+String setCurrentTimeUrl = "http://api.timezonedb.com/v2/get-time-zone?key=" + String(TIMEZONE_API_KEY) + "&format=json&by=position&lat=" + LATITUDE + "&lng=" + LONGITUDE;
+//String fetchDaylightInfoUrl = "https://api.sunrise-sunset.org/json?lat=" + LATITUDE + "&lng=" + LONGITUDE + "&date="+String(year())+"-"+String(month())+"-"+String(day())+"&formatted=0";
 void initTime(){
   setCurrentTime();
   fetchDaylightInfo();
@@ -26,10 +27,10 @@ void setCurrentTime() {
     HTTPClient http;
     
     // Build the url for the timezonedb API call
-    String url = "http://api.timezonedb.com/v2/get-time-zone?key=" + String(TIMEZONE_API_KEY) + "&format=json&by=position&lat=" + LATITUDE + "&lng=" + LONGITUDE;
+//    String url = "http://api.timezonedb.com/v2/get-time-zone?key=" + String(TIMEZONE_API_KEY) + "&format=json&by=position&lat=" + LATITUDE + "&lng=" + LONGITUDE;
 
     // Start the http client
-    http.begin(url); 
+    http.begin(setCurrentTimeUrl); 
 
     // Make the request
     int httpCode = http.GET();
@@ -67,12 +68,12 @@ void setCurrentTime() {
           gmtOffset = doc["gmtOffset"];
 
           // Print out all of that for debugging
-//          Serial.print("parsedTime: ");
-//          Serial.println(parsedTime);
-//          Serial.print("gmtOffset: ");
-//          Serial.println(gmtOffset);
-//          Serial.print("timestamp: ");
-//          Serial.println(timestamp);
+          Serial.print("parsedTime: ");
+          Serial.println(parsedTime);
+          Serial.print("gmtOffset: ");
+          Serial.println(gmtOffset);
+          Serial.print("timestamp: ");
+          Serial.println(timestamp);
 
           // Give the Time library the current time
           setTime(timestamp);
@@ -80,11 +81,12 @@ void setCurrentTime() {
           // Set the current date
           currentDay = day(now());
           lastTimeUpdated = now();
+          Serial.println(now());
         }
       }
     } else {
       
-//      Serial.println("Error while fetching current time...");
+      Serial.println("Error while fetching current time...");
     }
 
     // Free resources in use by http client
