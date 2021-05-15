@@ -20,6 +20,7 @@ void setup() {
 
   Serial.begin(115200);
   randomSeed(analogRead(0));
+
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
@@ -78,21 +79,19 @@ int breath_seconds = 0;
 
 
 void loop() {
-  double r = 0.0;
-  double g = 0.0;
-  double b = 0.0;
+  SmoothColor color;
   if (isDay) {
-    dayColor(r, g, b);
+    color = dayColor();
   } else {
-    nightColor(r, g, b);
+    color = nightColor();
   }
 
   if (randomModeOn) {
-    randomColor(r, g, b);
+    color = randomColor();
   }
 
   if (lightOn) {
-    breathe(r, g, b);
+    breathe(color);
   } else {
     turnOff();
   }
@@ -102,53 +101,42 @@ void loop() {
   }
 }
 
-void dayColor(double &red, double &green, double &blue) {
+SmoothColor dayColor() {
   double brightness = 0.2;
   double rand1 = random(40000000, 300000000) / 1000000000.0;
   double rand2 = random(15000000, 200000000) / 1000000000.0;
   double rand3 = random(10000000, 200000000) / 1000000000.0;
-  normalizeColor(brightness, rand1, rand2, rand3);
   double high = max(rand1, max(rand2, rand3));
   double low = min(rand1, min(rand2, rand3));
   double med = max(min(rand1, rand2), min(rand2, rand3));
-  red = low;
-  green = med;
-  blue = high;
+  return SmoothColor(low, med, high, brightness);
 
 }
 
-void nightColor(double &red, double &green, double &blue) {
+SmoothColor nightColor() {
   double brightness = 0.18  ;
   double rand1 = random(160000000, 600000000) / 2000000000.0;
   double rand2 = random(5000000, 10000000) / 2000000000.0;
   double rand3 = random(0, 200000) / 2000000000.0;
-  normalizeColor(brightness, rand1, rand2, rand3);
   double high = max(rand1, max(rand2, rand3));
   double low = min(rand1, min(rand2, rand3));
   double med = max(min(rand1, rand2), min(rand2, rand3));
-  red = high;
-  green = med;
-  blue = low;
-
+  return SmoothColor(high, med, low, brightness);
 }
 
-void randomColor(double &red, double &green, double &blue) {
+SmoothColor randomColor() {
   double randomNumbers[3];
   double brightness = 0.25;
   randomNumbers[0] = random(200000000, 400000000) / 2000000000.0;
   randomNumbers[1] = random(200000, 400000000) / 2000000000.0;
   randomNumbers[2] = random(200000, 20000000) / 2000000000.0;
-  normalizeColor(brightness, randomNumbers[0], randomNumbers[1], randomNumbers[2]);
   for (int i = 0; i < 3; i++) {
     int n = random(0, 3);  
     double temp = randomNumbers[n];
     randomNumbers[n] =  randomNumbers[i];
     randomNumbers[i] = temp;
   }
-
-  red = randomNumbers[0];
-  green = randomNumbers[1];
-  blue = randomNumbers[2];
+  return SmoothColor(randomNumbers[0], randomNumbers[1], randomNumbers[3], brightness);
 
 }
 

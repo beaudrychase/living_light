@@ -13,9 +13,29 @@ double gam = 0.13; // affects the width of peak (more or less darkness)
 double beta = 0.5; // shifts the gaussian to be symmetric
 
 double fade_amount = 0.75 * smoothness_pts;
-double oldR = 0.1;
-double oldG = 0.1;
-double oldB = 0.1;
+SmoothColor oldColor(0.0);
+
+  SmoothColor::SmoothColor(double brightness){
+    this->red = brightness;
+    this->green = brightness;
+    this->blue =brightness;
+  }
+  SmoothColor::SmoothColor(double red, double blue, double green){
+    this->red = red;
+    this->green = green;
+    this->blue =blue;
+  }
+
+  SmoothColor::SmoothColor(double red, double blue, double green, double brightness): SmoothColor(red, blue, green){
+    this->normalizeColor(brightness);
+  }
+  void SmoothColor::normalizeColor(double brightness){
+    double normFactor = brightness / (red + green + blue) / 3;
+    red = red * normFactor;
+    green = green * normFactor;
+    blue = blue * normFactor;
+  }
+
 
 void initBreathe() {
   //  Serial.println(ESP.getFreeHeap());
@@ -51,13 +71,7 @@ void updateBreathLength(int new_len_sec) {
   }
 }
 
-void normalizeColor(double brightness, double &r, double &g, double &b) {
-  double normFactor = brightness / (r + g + b) / 3;
-  r = r * normFactor;
-  g = g * normFactor;
-  b = b * normFactor;
 
-}
 
 void turnOff() {
   frame_set_color(0, 0, 0);
@@ -65,13 +79,13 @@ void turnOff() {
 }
 
 
-void breath_iteration(double r, double g, double b, int array_len, float* brightness_array, int offset) {
+void breath_iteration(SmoothColor color, int array_len, float* brightness_array, int offset) {
   for (int i = 0; i < array_len; ++i) {
     double increasing = min((i + offset) * 3.0, smoothness_pts) / smoothness_pts;
     //    double decreasing = max((double)(smoothness_pts - (i + offset) * 3.0) / smoothness_pts, 0.0);
-    double smooth_r = r * increasing + oldR * (1.0 - increasing);
-    double smooth_g = g * increasing + oldG * (1.0 - increasing);
-    double smooth_b = b * increasing + oldB * (1.0 - increasing);
+    double smooth_r = color.red * increasing + oldColor.red * (1.0 - increasing);
+    double smooth_g = color.green * increasing + oldColor.green * (1.0 - increasing);
+    double smooth_b = color.blue * increasing + oldColor.blue * (1.0 - increasing);
     double smoothed_cached_brightness = brightness_array[i] / (smooth_r + smooth_g + smooth_b) / 3.0;
 
     int red = (int) (smooth_r * smoothed_cached_brightness);
@@ -83,10 +97,8 @@ void breath_iteration(double r, double g, double b, int array_len, float* bright
 
 }
 
-void breathe(double r, double g, double b) {
-  breath_iteration(r, g, b, STATIC_SMOOTHNESS, static_cached_brightness, 0);
-  breath_iteration(r, g, b, dynamic_length, dynamic_cached_brightness, STATIC_SMOOTHNESS);
-  oldR = r;
-  oldG = g;
-  oldB = b;
+void breathe(SmoothColor color) {
+  breath_iteration(color, STATIC_SMOOTHNESS, static_cached_brightness, 0);
+  breath_iteration(color, dynamic_length, dynamic_cached_brightness, STATIC_SMOOTHNESS);
+  oldColor = color;
 }
