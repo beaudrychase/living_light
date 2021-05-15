@@ -20,20 +20,21 @@ SmoothColor oldColor(0.0);
     this->green = brightness;
     this->blue =brightness;
   }
-  SmoothColor::SmoothColor(double red, double blue, double green){
+  SmoothColor::SmoothColor(double red, double green, double blue){
     this->red = red;
     this->green = green;
     this->blue =blue;
   }
 
-  SmoothColor::SmoothColor(double red, double blue, double green, double brightness): SmoothColor(red, blue, green){
+  SmoothColor::SmoothColor(double red, double green, double blue, double brightness): SmoothColor(red, green, blue){
     this->normalizeColor(brightness);
   }
   void SmoothColor::normalizeColor(double brightness){
-    double normFactor = brightness / (red + green + blue) / 3;
-    red = red * normFactor;
-    green = green * normFactor;
-    blue = blue * normFactor;
+//    double normFactor = brightness / (red + green + blue) / 3.0;
+    double normFactor = (red + green + blue);
+    red = (red / normFactor) * brightness;
+    green = (green / normFactor) * brightness;
+    blue = (blue / normFactor) * brightness;
   }
 
 

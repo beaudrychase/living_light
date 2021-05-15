@@ -103,9 +103,9 @@ void loop() {
 
 SmoothColor dayColor() {
   double brightness = 0.2;
-  double rand1 = random(40000000, 300000000) / 1000000000.0;
-  double rand2 = random(15000000, 200000000) / 1000000000.0;
-  double rand3 = random(10000000, 200000000) / 1000000000.0;
+  double rand1 = 40000000.0 / 1000000000.0;
+  double rand2 = random(28000000, 300000000) / 1000000000.0;
+  double rand3 = random(25000000, 300000000) / 1000000000.0;
   double high = max(rand1, max(rand2, rand3));
   double low = min(rand1, min(rand2, rand3));
   double med = max(min(rand1, rand2), min(rand2, rand3));
@@ -117,7 +117,7 @@ SmoothColor nightColor() {
   double brightness = 0.18  ;
   double rand1 = random(160000000, 600000000) / 2000000000.0;
   double rand2 = random(5000000, 10000000) / 2000000000.0;
-  double rand3 = random(0, 200000) / 2000000000.0;
+  double rand3 = random(0, 30000) / 2000000000.0;
   double high = max(rand1, max(rand2, rand3));
   double low = min(rand1, min(rand2, rand3));
   double med = max(min(rand1, rand2), min(rand2, rand3));
