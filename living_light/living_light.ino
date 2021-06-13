@@ -73,6 +73,7 @@ void setup() {
 volatile bool lightOn = true;
 volatile bool randomModeOn = false;
 volatile bool isDay = true;
+volatile bool isTwilight = false;
 volatile int vol_breath_seconds = 0;
 int breath_seconds = 0;
 
@@ -82,9 +83,12 @@ void loop() {
   SmoothColor color;
   if (isDay) {
     color = dayColor();
+  } else if (isTwilight){
+    color = twilightColor();
   } else {
     color = nightColor();
   }
+//  color = twilightColor();
 
   if (randomModeOn) {
     color = randomColor();
@@ -113,8 +117,19 @@ SmoothColor dayColor() {
 
 }
 
+SmoothColor twilightColor() {
+  double brightness = 0.18;
+  double rand1 = 40000000.0 / 1000000000.0;
+  double rand2 = random(6000000, 9000000) / 1000000000.0;
+  double rand3 = random(2000000, 3000000) / 1000000000.0;
+  double high = max(rand1, max(rand2, rand3));
+  double low = min(rand1, min(rand2, rand3));
+  double med = max(min(rand1, rand2), min(rand2, rand3));
+  return SmoothColor(high, med, low, brightness);
+}
+
 SmoothColor nightColor() {
-  double brightness = 0.18  ;
+  double brightness = 0.17  ;
   double rand1 = random(160000000, 600000000) / 2000000000.0;
   double rand2 = random(5000000, 10000000) / 2000000000.0;
   double rand3 = random(0, 30000) / 2000000000.0;
@@ -140,21 +155,34 @@ SmoothColor randomColor() {
 
 }
 
-
+int getTimeOfDay(time_t time){
+  return hour(time) * 100 + minute(time);
+}
 
 void networkingCode( void * pvParameters ) {
 //  Serial.print("Task2 running on core ");
 //  Serial.println(xPortGetCoreID());
 
   for (;;) {
-
-    isDay = now() > sunriseTime && now() < sunsetTime;
+    Serial.print("now TimeOfDay: ");
+    Serial.println(getTimeOfDay(now()));
+    Serial.print("sunrise TimeOfDay: ");
+    Serial.println(getTimeOfDay(sunriseTime));
+    Serial.print("sunset TimeOfDay: ");
+    Serial.println(getTimeOfDay(sunsetTime));
+    
+    isDay = getTimeOfDay(now()) > getTimeOfDay(sunriseTime) && getTimeOfDay(now()) < getTimeOfDay(sunsetTime);
+    // it is not day, it is before twilight end, it is after sunset
+    bool nightTwilight = isDay == false && getTimeOfDay(now()) <= getTimeOfDay(twilightEndTime) && getTimeOfDay(now()) >= getTimeOfDay(sunsetTime);
+    bool morningTwilight = isDay == false && getTimeOfDay(now()) >= getTimeOfDay(twilightBeginTime) && getTimeOfDay(now()) <= getTimeOfDay(sunriseTime);
+    isTwilight = nightTwilight || morningTwilight;
 
     if (currentDay != day(now()) || sunriseTime == 0) {
       setCurrentTime();
       fetchDaylightInfo();
     }
     if (day(sunsetTime) != day(now())) {
+      setCurrentTime();
       fetchDaylightInfo();
     }
     delay(1000 * 3);

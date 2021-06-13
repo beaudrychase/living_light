@@ -146,8 +146,8 @@ void fetchDaylightInfo() {
           const JsonObject& results = doc["results"];
 
           //Grab twilight begin time
-          const char * twilightBeginParsed = results["astronomical_twilight_begin"];
-          const char * twilightEndParsed = results["astronomical_twilight_end"];
+          const char * twilightBeginParsed = results["civil_twilight_begin"];
+          const char * twilightEndParsed = results["civil_twilight_end"];
           twilightBeginTime = timeFromDaylightString(twilightBeginParsed) + gmtOffset;
           twilightEndTime = timeFromDaylightString(twilightEndParsed) + gmtOffset;
 

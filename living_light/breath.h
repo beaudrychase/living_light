@@ -1,7 +1,5 @@
 
 
-
-
 class SmoothColor {
 public:
   double red;
