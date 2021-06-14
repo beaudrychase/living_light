@@ -1,8 +1,11 @@
-//#include <TelegramCertificate.h>
-//#include <UniversalTelegramBot.h>
-#include <WiFiClientSecure.h> 
+# 1 "/tmp/tmp5bes8tz5"
+#include <Arduino.h>
+# 1 "/home/beaudry/Work/Personal/living_light/src/living_light.ino"
+
+
+#include <WiFiClientSecure.h>
 #include <ArduinoOTA.h>
-#include <Time.h>
+#include <TimeLib.h>
 #include "constants.h"
 #include "secrets.h"
 #include "breath.h"
@@ -12,9 +15,15 @@
 TaskHandle_t networkingTask;
 
 WiFiClientSecure client;
-//UniversalTelegramBot bot(BOTtoken, client);
-
-
+void setup();
+void loop();
+SmoothColor dayColor();
+SmoothColor twilightColor();
+SmoothColor nightColor();
+SmoothColor randomColor();
+int getTimeOfDay(time_t time);
+void networkingCode( void * pvParameters );
+#line 18 "/home/beaudry/Work/Personal/living_light/src/living_light.ino"
 void setup() {
   initBreathe();
 
@@ -29,26 +38,26 @@ void setup() {
     Serial.println(WiFi.status());
   }
   initTelegramBot(client);
-  
+
   initTime();
   xTaskCreatePinnedToCore(
-    networkingCode,   /* Task function. */
-    "networking",     /* name of task. */
-    20000,       /* Stack size of task */
-    NULL,        /* parameter of the task */
-    1,           /* priority of the task */
-    &networkingTask,      /* Task handle to keep track of created task */
-    0);          /* pin task to core 1 */
+    networkingCode,
+    "networking",
+    20000,
+    NULL,
+    1,
+    &networkingTask,
+    0);
 
   ArduinoOTA
   .onStart([]() {
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH)
       type = "sketch";
-    else // U_SPIFFS
+    else
       type = "filesystem";
 
-    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+
     Serial.println("Start updating " + type);
   })
   .onEnd([]() {
@@ -67,7 +76,7 @@ void setup() {
   })
   .setPassword(OTA_PASS);
   ArduinoOTA.begin();
-  
+
 
 }
 volatile bool lightOn = true;
@@ -88,7 +97,7 @@ void loop() {
   } else {
     color = nightColor();
   }
-//  color = twilightColor();
+
 
   if (randomModeOn) {
     color = randomColor();
@@ -129,7 +138,7 @@ SmoothColor twilightColor() {
 }
 
 SmoothColor nightColor() {
-  double brightness = 0.17  ;
+  double brightness = 0.17 ;
   double rand1 = random(160000000, 600000000) / 2000000000.0;
   double rand2 = random(5000000, 10000000) / 2000000000.0;
   double rand3 = random(0, 30000) / 2000000000.0;
@@ -146,9 +155,9 @@ SmoothColor randomColor() {
   randomNumbers[1] = random(200000, 400000000) / 2000000000.0;
   randomNumbers[2] = random(200000, 20000000) / 2000000000.0;
   for (int i = 0; i < 3; i++) {
-    int n = random(0, 3);  
+    int n = random(0, 3);
     double temp = randomNumbers[n];
-    randomNumbers[n] =  randomNumbers[i];
+    randomNumbers[n] = randomNumbers[i];
     randomNumbers[i] = temp;
   }
   return SmoothColor(randomNumbers[0], randomNumbers[1], randomNumbers[3], brightness);
@@ -160,8 +169,8 @@ int getTimeOfDay(time_t time){
 }
 
 void networkingCode( void * pvParameters ) {
-//  Serial.print("Task2 running on core ");
-//  Serial.println(xPortGetCoreID());
+
+
 
   for (;;) {
     Serial.print("now TimeOfDay: ");
@@ -170,9 +179,9 @@ void networkingCode( void * pvParameters ) {
     Serial.println(getTimeOfDay(sunriseTime));
     Serial.print("sunset TimeOfDay: ");
     Serial.println(getTimeOfDay(sunsetTime));
-    
+
     isDay = getTimeOfDay(now()) > getTimeOfDay(sunriseTime) && getTimeOfDay(now()) < getTimeOfDay(sunsetTime);
-    // it is not day, it is before twilight end, it is after sunset
+
     bool nightTwilight = isDay == false && getTimeOfDay(now()) <= getTimeOfDay(twilightEndTime) && getTimeOfDay(now()) >= getTimeOfDay(sunsetTime);
     bool morningTwilight = isDay == false && getTimeOfDay(now()) >= getTimeOfDay(twilightBeginTime) && getTimeOfDay(now()) <= getTimeOfDay(sunriseTime);
     isTwilight = nightTwilight || morningTwilight;
@@ -186,7 +195,7 @@ void networkingCode( void * pvParameters ) {
       fetchDaylightInfo();
     }
     delay(1000 * 3);
-    
+
     handleTelegramMessages(lightOn, randomModeOn, vol_breath_seconds);
     ArduinoOTA.handle();
 
