@@ -3,7 +3,7 @@
 #include <Arduino.h>
 enum Color {red, green, blue};
 
-class SmoothColorGenerator: ISmoothColorGenerator{
+class OrderedColorGenerator: ISmoothColorGenerator{
 private:
     Color _order[3];
     int _redMin;
@@ -16,6 +16,6 @@ private:
     int convertFloat(double value);
 
 public:
-    SmoothColorGenerator(Color order[3], double redMin, double redMax, double greenMin, double greenMax, double blueMin, double blueMax);
+    OrderedColorGenerator(Color order[3], double redMin, double redMax, double greenMin, double greenMax, double blueMin, double blueMax);
     SmoothColor generateColor(double brightness);
 };

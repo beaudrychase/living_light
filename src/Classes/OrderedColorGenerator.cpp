@@ -1,10 +1,10 @@
-#include <Classes/SmoothColorGenerator.h>
+#include <Classes/OrderedColorGenerator.h>
 
-int SmoothColorGenerator::convertFloat(double value){
+int OrderedColorGenerator::convertFloat(double value){
     return (int) (value * denom);
 }
 
-SmoothColorGenerator::SmoothColorGenerator(Color order[3], double redMin, double redMax, double greenMin, double greenMax, double blueMin, double blueMax){
+OrderedColorGenerator::OrderedColorGenerator(Color order[3], double redMin, double redMax, double greenMin, double greenMax, double blueMin, double blueMax){
     _order[0] = order[0];
     _order[1] = order[1];
     _order[2] = order[2];
@@ -21,7 +21,7 @@ SmoothColorGenerator::SmoothColorGenerator(Color order[3], double redMin, double
     _blueMax = convertFloat(blueMax);
 }
 
-SmoothColor SmoothColorGenerator::generateColor(double brightness){
+SmoothColor OrderedColorGenerator::generateColor(double brightness){
     int rand[3];
     rand[0] = random(_redMin, _redMax);
     rand[1] = random(_greenMin, _greenMax);
