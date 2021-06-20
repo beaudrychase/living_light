@@ -1,6 +1,6 @@
 #include <FastLED.h>
 #include "dithering.h"
-#include "constants.h"
+#include <constants.h>
 #include "Classes/SmoothColor.h"
 
 
