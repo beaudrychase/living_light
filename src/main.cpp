@@ -1,18 +1,18 @@
 //#include <TelegramCertificate.h>
 //#include <UniversalTelegramBot.h>
-#include "main.h"
+#include <main.h>
 
 
 TaskHandle_t networkingTask;
 
 WiFiClientSecure client;
+Breath breath;
 //UniversalTelegramBot bot(BOTtoken, client);
 
 
 void setup() {
-  initBreathe();
-
   Serial.begin(115200);
+  breath = Breath();
   randomSeed(analogRead(0));
 
   WiFi.mode(WIFI_STA);
@@ -81,13 +81,9 @@ void loop() {
   }
 
   if (lightOn) {
-    breathe(color);
+    breath.breathe(color);
   } else {
-    turnOff();
-  }
-  if (vol_breath_seconds != breath_seconds){
-    breath_seconds = vol_breath_seconds;
-    updateBreathLength(breath_seconds);
+    breath.turnOff();
   }
 }
 

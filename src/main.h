@@ -2,7 +2,7 @@
 #include <TimeLib.h>
 #include <WiFiClientSecure.h> 
 #include <ArduinoOTA.h>
-#include "breath.h"
+#include <Classes/Breath.h>
 #include <constants.h>
 #include <secrets.h>
 #include "time_manager.h"
