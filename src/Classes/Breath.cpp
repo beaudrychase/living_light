@@ -1,8 +1,8 @@
 #include <Classes/Breath.h>
 
 Breath::Breath(){
+    _ditherManager = DitherManager();
     _dynamicCachedBrightness = (float *) malloc((_dynamicLength) * sizeof(float));
-    initDither();
     for (int i = 0; i < STATIC_SMOOTHNESS; ++i) {
         _staticCachedBrightness[i] = computeBrightnessVal(i, _smoothness);
     }
@@ -12,7 +12,7 @@ Breath::Breath(){
 }
 
 void Breath::turnOff() {
-  frame_set_color(0, 0, 0);
+  _ditherManager.setColor(0, 0, 0);
   FastLED.show();
 }
 
@@ -28,7 +28,7 @@ void Breath::breathIteration(SmoothColor color, int arrayLen, float* brightnessA
     int red = (int) (smooth_r * smoothed_cached_brightness);
     int green = (int) (smooth_g * smoothed_cached_brightness);
     int blue = (int) (smooth_b * smoothed_cached_brightness);
-    frame_set_color(red, green, blue);
+    _ditherManager.setColor(red, green, blue);
     FastLED.show();
   }
 
