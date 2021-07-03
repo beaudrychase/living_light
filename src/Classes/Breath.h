@@ -7,9 +7,9 @@
 class Breath {
 private:
     double _smoothness = SMOOTHNESS;
-    int _breathLength;
+    static int _breathLength;
     static float _staticCachedBrightness[STATIC_SMOOTHNESS];
-    float* _dynamicCachedBrightness;
+    static float* _dynamicCachedBrightness;
     const int _dynamicLength = SMOOTHNESS - STATIC_SMOOTHNESS;
     const double _colorGammaCorrection = 1.5;
     const double _gam = 0.13; // affects the width of peak (more or less darkness)

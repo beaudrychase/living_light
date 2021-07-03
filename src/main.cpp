@@ -6,13 +6,12 @@
 TaskHandle_t networkingTask;
 
 WiFiClientSecure client;
-Breath breath;
+Breath breath = Breath();
 //UniversalTelegramBot bot(BOTtoken, client);
 
 
 void setup() {
   Serial.begin(115200);
-  breath = Breath();
   randomSeed(analogRead(0));
 
   WiFi.mode(WIFI_STA);
