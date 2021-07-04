@@ -3,6 +3,7 @@
 #include <WiFiClientSecure.h> 
 #include <ArduinoOTA.h>
 #include <Classes/Breath.h>
+#include <Classes/TimeManager.h>
 #include <constants.h>
 #include <secrets.h>
 #include "time_manager.h"
@@ -10,8 +11,6 @@
 
 volatile bool lightOn = true;
 volatile bool randomModeOn = false;
-volatile bool isDay = true;
-volatile bool isTwilight = false;
 volatile int vol_breath_seconds = 0;
 int breath_seconds = 0;
 

@@ -7,6 +7,7 @@ TaskHandle_t networkingTask;
 
 WiFiClientSecure client;
 Breath breath = Breath();
+TimeManager timeManager = TimeManager();
 //UniversalTelegramBot bot(BOTtoken, client);
 
 
@@ -65,25 +66,28 @@ void setup() {
 }
 
 void loop() {
-  SmoothColor color;
-  if (isDay) {
-    color = dayColor();
-  } else if (isTwilight){
-    color = twilightColor();
-  } else {
-    color = nightColor();
-  }
-//  color = twilightColor();
+    SmoothColor color;
+    switch(timeManager.getDayStatus()){
+        case Day:
+            color = dayColor();
+            break;
+        case Twilight:
+            color = twilightColor();
+            break;
+        case Night:
+            color = nightColor();
+            break;
+    }
 
-  if (randomModeOn) {
-    color = randomColor();
-  }
+    if (randomModeOn) {
+        color = randomColor();
+    }
 
-  if (lightOn) {
-    breath.breathe(color);
-  } else {
-    breath.turnOff();
-  }
+    if (lightOn) {
+        breath.breathe(color);
+    } else {
+        breath.turnOff();
+    }
 }
 
 SmoothColor dayColor() {
@@ -136,36 +140,12 @@ SmoothColor randomColor() {
 
 }
 
-int getTimeOfDay(time_t time){
-  return hour(time) * 100 + minute(time);
-}
-
 void networkingCode( void * pvParameters ) {
 //  Serial.print("Task2 running on core ");
 //  Serial.println(xPortGetCoreID());
 
   for (;;) {
-    Serial.print("now TimeOfDay: ");
-    Serial.println(getTimeOfDay(now()));
-    Serial.print("sunrise TimeOfDay: ");
-    Serial.println(getTimeOfDay(sunriseTime));
-    Serial.print("sunset TimeOfDay: ");
-    Serial.println(getTimeOfDay(sunsetTime));
-    
-    isDay = getTimeOfDay(now()) > getTimeOfDay(sunriseTime) && getTimeOfDay(now()) < getTimeOfDay(sunsetTime);
-    // it is not day, it is before twilight end, it is after sunset
-    bool nightTwilight = isDay == false && getTimeOfDay(now()) <= getTimeOfDay(twilightEndTime) && getTimeOfDay(now()) >= getTimeOfDay(sunsetTime);
-    bool morningTwilight = isDay == false && getTimeOfDay(now()) >= getTimeOfDay(twilightBeginTime) && getTimeOfDay(now()) <= getTimeOfDay(sunriseTime);
-    isTwilight = nightTwilight || morningTwilight;
-
-    if (currentDay != day(now()) || sunriseTime == 0) {
-      setCurrentTime();
-      fetchDaylightInfo();
-    }
-    if (day(sunsetTime) != day(now())) {
-      setCurrentTime();
-      fetchDaylightInfo();
-    }
+    timeManager.updateForNewDay();
     delay(1000 * 3);
     
     handleTelegramMessages(lightOn, randomModeOn, vol_breath_seconds);
