@@ -1,5 +1,6 @@
-#include <constants.h>
 #include <FastLED.h>
+#include <constants.h>
+
 
 class DitherManager {
     private:
@@ -18,7 +19,6 @@ class DitherManager {
     inline void dithering(int idx, int r, int g, int b);
     inline int ditherSingle(int idx, int channel);
     inline int getIdx(int r, int c);
-    void swap (int *a, int *b);
 
     public:
     DitherManager();

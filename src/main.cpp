@@ -68,15 +68,19 @@ void setup() {
 void loop() {
     SmoothColor color;
     switch(timeManager.getDayStatus()){
-        case Day:
+        case TimeManager::DayStatus::Day:
             color = dayColor();
             break;
-        case Twilight:
+        case TimeManager::DayStatus::Twilight:
             color = twilightColor();
             break;
-        case Night:
+        case TimeManager::DayStatus::Night:
             color = nightColor();
             break;
+        default:
+            color = nightColor();
+            break;
+        
     }
 
     if (randomModeOn) {

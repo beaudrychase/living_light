@@ -1,9 +1,13 @@
 #include <TimeLib.h>
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
+
 #include <secrets.h>
 
 class TimeManager {
+    public:
+    enum class DayStatus {Day, Horizon, Twilight, Night};
+
     private:
     time_t currentTime;
     time_t lastTimeUpdated = 0;
@@ -32,4 +36,3 @@ class TimeManager {
     DayStatus getDayStatus();
 };
 
-enum DayStatus {Day, Horizon, Twilight, Night};

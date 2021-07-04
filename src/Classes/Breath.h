@@ -1,8 +1,9 @@
+#include <FastLED.h>
 #include <constants.h>
 #include <Arduino.h>
 #include <Classes/SmoothColor.h>
 #include <Classes/DitherManager.h>
-#include <FastLED.h>
+
 
 class Breath {
 private:

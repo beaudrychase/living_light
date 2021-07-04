@@ -2,19 +2,19 @@
 
 
 
-DayStatus TimeManager::getDayStatus(){
+TimeManager::DayStatus TimeManager::getDayStatus(){
     bool isDay = getTimeOfDay(now()) > getTimeOfDay(sunriseTime) && getTimeOfDay(now()) < getTimeOfDay(sunsetTime);
     // it is not day, it is before twilight end, it is after sunset
     if (isDay){
-        return Day;
+        return DayStatus::Day;
     }
     bool nightTwilight = isDay == false && getTimeOfDay(now()) <= getTimeOfDay(twilightEndTime) && getTimeOfDay(now()) >= getTimeOfDay(sunsetTime);
     bool morningTwilight = isDay == false && getTimeOfDay(now()) >= getTimeOfDay(twilightBeginTime) && getTimeOfDay(now()) <= getTimeOfDay(sunriseTime);
     bool isTwilight = nightTwilight || morningTwilight;
     if (isTwilight){
-        return Twilight;
+        return DayStatus::Twilight;
     }
-    return Night;
+    return DayStatus::Night;
 
     
 }
