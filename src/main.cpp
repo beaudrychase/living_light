@@ -22,9 +22,9 @@ void setup() {
     Serial.println("Connecting to WiFi..");
     Serial.println(WiFi.status());
   }
+  timeManager.setCurrentTime();
+  timeManager.fetchDaylightInfo();
   initTelegramBot(client);
-  
-  initTime();
   xTaskCreatePinnedToCore(
     networkingCode,   /* Task function. */
     "networking",     /* name of task. */
@@ -34,33 +34,33 @@ void setup() {
     &networkingTask,      /* Task handle to keep track of created task */
     0);          /* pin task to core 1 */
 
-  ArduinoOTA
-  .onStart([]() {
-    String type;
-    if (ArduinoOTA.getCommand() == U_FLASH)
-      type = "sketch";
-    else // U_SPIFFS
-      type = "filesystem";
+//   ArduinoOTA
+//   .onStart([]() {
+//     String type;
+//     if (ArduinoOTA.getCommand() == U_FLASH)
+//       type = "sketch";
+//     else // U_SPIFFS
+//       type = "filesystem";
 
-    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-    Serial.println("Start updating " + type);
-  })
-  .onEnd([]() {
-    Serial.println("\nEnd");
-  })
-  .onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-  })
-  .onError([](ota_error_t error) {
-    Serial.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println("End Failed");
-  })
-  .setPassword(OTA_PASS);
-  ArduinoOTA.begin();
+//     // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+//     Serial.println("Start updating " + type);
+//   })
+//   .onEnd([]() {
+//     Serial.println("\nEnd");
+//   })
+//   .onProgress([](unsigned int progress, unsigned int total) {
+//     Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+//   })
+//   .onError([](ota_error_t error) {
+//     Serial.printf("Error[%u]: ", error);
+//     if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+//     else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+//     else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+//     else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+//     else if (error == OTA_END_ERROR) Serial.println("End Failed");
+//   })
+//   .setPassword(OTA_PASS);
+//   ArduinoOTA.begin();
   
 
 }
@@ -86,7 +86,7 @@ void loop() {
     if (randomModeOn) {
         color = randomColor();
     }
-
+    // Serial.println("breath");
     if (lightOn) {
         breath.breathe(color);
     } else {
@@ -153,7 +153,7 @@ void networkingCode( void * pvParameters ) {
     delay(1000 * 3);
     
     handleTelegramMessages(lightOn, randomModeOn, vol_breath_seconds);
-    ArduinoOTA.handle();
+    // ArduinoOTA.handle();
 
   }
 }

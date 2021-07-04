@@ -31,8 +31,7 @@ void TimeManager::updateForNewDay(){
 }
 
 TimeManager::TimeManager(){
-    setCurrentTime();
-    fetchDaylightInfo();
+
 }
 
 void TimeManager::setCurrentTime(){

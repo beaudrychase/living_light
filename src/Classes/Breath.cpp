@@ -13,7 +13,6 @@ Breath::Breath(){
 
 void Breath::turnOff() {
   _ditherManager.setColor(0, 0, 0);
-  FastLED.show();
 }
 
 void Breath::breathIteration(SmoothColor color, int arrayLen, float* brightnessArray, int offset) {
@@ -28,8 +27,7 @@ void Breath::breathIteration(SmoothColor color, int arrayLen, float* brightnessA
     int red = (int) (smooth_r * smoothed_cached_brightness);
     int green = (int) (smooth_g * smoothed_cached_brightness);
     int blue = (int) (smooth_b * smoothed_cached_brightness);
-    _ditherManager.setColor(red, green, blue);
-    FastLED.show();
+    _ditherManager.setColor(1, 1, 1);
   }
 
 }

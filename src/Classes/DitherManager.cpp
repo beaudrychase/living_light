@@ -21,11 +21,12 @@ inline int DitherManager::ditherSingle(int idx, int channel) {
 }
 
 inline void DitherManager::dithering(int idx, int r, int g, int b) {
-    _leds[idx].setRGB(
-        ditherSingle((idx + _redOffset) % DITHER_LEVEL, r),
-        ditherSingle((idx + _greenOffset) % DITHER_LEVEL, g),
-        ditherSingle((idx + _blueOffset) % DITHER_LEVEL, b)
-        );
+    // _leds[idx].setRGB(
+    //     ditherSingle((idx + _redOffset) % DITHER_LEVEL, r),
+    //     ditherSingle((idx + _greenOffset) % DITHER_LEVEL, g),
+    //     ditherSingle((idx + _blueOffset) % DITHER_LEVEL, b)
+    //     );
+    _leds[idx].setRGB(1,1,1);
 }
 
 inline int DitherManager::getIdx(int r, int c) {
@@ -55,4 +56,5 @@ void DitherManager::setColor(int red, int green, int blue) {
 //  }
   _actualFrame = (_actualFrame + 1) % DITHER_LEVEL;
   _frame = _frameArray[_actualFrame];
+  FastLED.show();
 }
