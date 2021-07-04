@@ -1,5 +1,7 @@
 #include <Classes/DitherManager.h>
 
+CRGB _leds[NUM_LEDS];
+
 void DitherManager::randomize(int arr[], int n) {
   for (int i = n - 1; i > 0; i--)
   {
@@ -21,12 +23,12 @@ inline int DitherManager::ditherSingle(int idx, int channel) {
 }
 
 inline void DitherManager::dithering(int idx, int r, int g, int b) {
-    // _leds[idx].setRGB(
-    //     ditherSingle((idx + _redOffset) % DITHER_LEVEL, r),
-    //     ditherSingle((idx + _greenOffset) % DITHER_LEVEL, g),
-    //     ditherSingle((idx + _blueOffset) % DITHER_LEVEL, b)
-    //     );
-    _leds[idx].setRGB(1,1,1);
+    _leds[idx].setRGB(
+        ditherSingle((idx + _redOffset) % DITHER_LEVEL, r),
+        ditherSingle((idx + _greenOffset) % DITHER_LEVEL, g),
+        ditherSingle((idx + _blueOffset) % DITHER_LEVEL, b)
+        );
+    // _leds[idx].setRGB(1,1,1);
 }
 
 inline int DitherManager::getIdx(int r, int c) {

@@ -27,7 +27,7 @@ void Breath::breathIteration(SmoothColor color, int arrayLen, float* brightnessA
     int red = (int) (smooth_r * smoothed_cached_brightness);
     int green = (int) (smooth_g * smoothed_cached_brightness);
     int blue = (int) (smooth_b * smoothed_cached_brightness);
-    _ditherManager.setColor(1, 1, 1);
+    _ditherManager.setColor(red, green, blue);
   }
 
 }

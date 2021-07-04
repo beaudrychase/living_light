@@ -8,7 +8,7 @@ class DitherManager {
     static const int _greenOffset = (DITHER_LEVEL / 3);
     static const int _blueOffset = (DITHER_LEVEL / 3) * 2.0;
     int _frameArray[DITHER_LEVEL];
-    CRGB _leds[NUM_LEDS];
+    
 
     int _frame = 0;
     int _actualFrame = 0;
@@ -23,4 +23,5 @@ class DitherManager {
     public:
     DitherManager();
     void setColor(int red, int green, int blue);
+    // CRGB _leds[64];
 };
