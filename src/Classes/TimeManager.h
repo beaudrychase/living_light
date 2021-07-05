@@ -6,7 +6,7 @@
 
 class TimeManager {
     public:
-    enum class DayStatus {Day, Horizon, Twilight, Night};
+    enum class DayStatus {MidDay, Day, Horizon, Twilight, Night, DeepNight};
 
     private:
     time_t currentTime;

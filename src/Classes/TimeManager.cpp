@@ -1,22 +1,20 @@
 #include <Classes/TimeManager.h>
 
 
-
+ 
 TimeManager::DayStatus TimeManager::getDayStatus(){
-    bool isDay = getTimeOfDay(now()) > getTimeOfDay(sunriseTime) && getTimeOfDay(now()) < getTimeOfDay(sunsetTime);
-    // it is not day, it is before twilight end, it is after sunset
-    if (isDay){
+    int nowTime = getTimeOfDay(now());
+    if (nowTime <= getTimeOfDay(twilightBeginTime)){
+        return DayStatus::Night;
+    } else if (nowTime <= getTimeOfDay(sunriseTime)){
+        return DayStatus::Twilight;
+    } else if (nowTime <= getTimeOfDay(sunsetTime)){
         return DayStatus::Day;
-    }
-    bool nightTwilight = isDay == false && getTimeOfDay(now()) <= getTimeOfDay(twilightEndTime) && getTimeOfDay(now()) >= getTimeOfDay(sunsetTime);
-    bool morningTwilight = isDay == false && getTimeOfDay(now()) >= getTimeOfDay(twilightBeginTime) && getTimeOfDay(now()) <= getTimeOfDay(sunriseTime);
-    bool isTwilight = nightTwilight || morningTwilight;
-    if (isTwilight){
+    } else if (nowTime <= getTimeOfDay(twilightEndTime)){
         return DayStatus::Twilight;
     }
     return DayStatus::Night;
 
-    
 }
 
 void TimeManager::updateForNewDay(){
@@ -187,7 +185,7 @@ time_t TimeManager::timeFromDaylightString(const char* daylightString) {
   sscanf(daylightString, "%d-%d-%dT%d:%d:%d", &yr, &mnth, &dy, &hr, &mn, &sec); 
 
   // Create tmElements_t struct from components
-  tmElements_t timeElements = { sec, mn, hr, weekday(), dy, mnth, yr - 1970 }; 
+  tmElements_t timeElements = { sec, mn, hr, weekday(), dy, mnth, yr  - 1970 }; 
 
   // Make time_t out of tmElements_t struct and return it
   return makeTime(timeElements);  

@@ -6,6 +6,21 @@ TaskHandle_t networkingTask;
 WiFiClientSecure client;
 Breath breath = Breath();
 TimeManager timeManager = TimeManager();
+OrderedColorGenerator dayGenerator(
+    OrderedColorGenerator::Order::BGR,
+    0.04, 0.04,
+    0.028, 0.03,
+    0.025, 0.03);
+OrderedColorGenerator twilightGenerator(
+    OrderedColorGenerator::Order::RGB,
+    0.04, 0.04,
+    0.006, 0.009,
+    0.002, 0.003);
+OrderedColorGenerator nightGenerator(
+    OrderedColorGenerator::Order::RGB,
+    0.1, 0.1,
+    0.001, 0.0005,
+    0.000, 0.0000015);
 //UniversalTelegramBot bot(BOTtoken, client);
 
 
@@ -67,20 +82,20 @@ void loop() {
     SmoothColor color;
     switch(timeManager.getDayStatus()){
         case TimeManager::DayStatus::Day:
-            color = dayColor();
+            color = dayGenerator.generateColor(0.2);
             break;
         case TimeManager::DayStatus::Twilight:
-            color = twilightColor();
+            color = twilightGenerator.generateColor(0.18);
             break;
         case TimeManager::DayStatus::Night:
-            color = nightColor();
+            color = nightGenerator.generateColor(0.15);
             break;
         default:
-            color = nightColor();
+            color = nightGenerator.generateColor(0.15);
             break;
         
     }
-
+    // color = dayGenerator.generateColor(0.2);
     if (randomModeOn) {
         color = randomColor();
     }
@@ -90,40 +105,6 @@ void loop() {
     } else {
         breath.turnOff();
     }
-}
-
-SmoothColor dayColor() {
-  double brightness = 0.2;
-  double rand1 = 40000000.0 / 1000000000.0;
-  double rand2 = random(28000000, 300000000) / 1000000000.0;
-  double rand3 = random(25000000, 300000000) / 1000000000.0;
-  double high = max(rand1, max(rand2, rand3));
-  double low = min(rand1, min(rand2, rand3));
-  double med = max(min(rand1, rand2), min(rand2, rand3));
-  return SmoothColor(low, med, high, brightness);
-
-}
-
-SmoothColor twilightColor() {
-  double brightness = 0.18;
-  double rand1 = 40000000.0 / 1000000000.0;
-  double rand2 = random(6000000, 9000000) / 1000000000.0;
-  double rand3 = random(2000000, 3000000) / 1000000000.0;
-  double high = max(rand1, max(rand2, rand3));
-  double low = min(rand1, min(rand2, rand3));
-  double med = max(min(rand1, rand2), min(rand2, rand3));
-  return SmoothColor(high, med, low, brightness);
-}
-
-SmoothColor nightColor() {
-  double brightness = 0.17  ;
-  double rand1 = random(160000000, 600000000) / 2000000000.0;
-  double rand2 = random(5000000, 10000000) / 2000000000.0;
-  double rand3 = random(0, 30000) / 2000000000.0;
-  double high = max(rand1, max(rand2, rand3));
-  double low = min(rand1, min(rand2, rand3));
-  double med = max(min(rand1, rand2), min(rand2, rand3));
-  return SmoothColor(high, med, low, brightness);
 }
 
 SmoothColor randomColor() {

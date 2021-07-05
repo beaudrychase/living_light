@@ -4,8 +4,10 @@
 enum Color {red, green, blue};
 
 class OrderedColorGenerator: ISmoothColorGenerator{
-private:
-    Color _order[3];
+    public:
+    enum class Order{RGB, RBG, GRB, GBR, BRG, BGR};
+    private:
+    Order _order;
     int _redMin;
     int _redMax;
     int _greenMin;
@@ -15,7 +17,7 @@ private:
     int denom = __INT32_MAX__;
     int convertFloat(double value);
 
-public:
-    OrderedColorGenerator(Color order[3], double redMin, double redMax, double greenMin, double greenMax, double blueMin, double blueMax);
+    public:
+    OrderedColorGenerator(Order order, double redMin, double redMax, double greenMin, double greenMax, double blueMin, double blueMax);
     SmoothColor generateColor(double brightness);
 };

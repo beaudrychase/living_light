@@ -4,6 +4,7 @@
 
 #include <Classes/Breath.h>
 #include <Classes/TimeManager.h>
+#include <Classes/OrderedColorGenerator.h>
 #include <constants.h>
 #include <secrets.h>
 #include "telegramBot.h"
