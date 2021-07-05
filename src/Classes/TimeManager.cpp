@@ -1,7 +1,5 @@
 #include <Classes/TimeManager.h>
 
-
- 
 TimeManager::DayStatus TimeManager::getDayStatus(){
     int nowTime = getTimeOfDay(now());
     if (nowTime <= getTimeOfDay(twilightBeginTime)){
@@ -29,7 +27,6 @@ void TimeManager::updateForNewDay(){
 }
 
 TimeManager::TimeManager(){
-
 }
 
 void TimeManager::setCurrentTime(){
