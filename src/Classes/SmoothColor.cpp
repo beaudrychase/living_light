@@ -3,7 +3,7 @@
   SmoothColor::SmoothColor(double brightness){
     this->red = brightness;
     this->green = brightness;
-    this->blue =brightness;
+    this->blue = brightness;
   }
   SmoothColor::SmoothColor(double red, double green, double blue){
     this->red = red;

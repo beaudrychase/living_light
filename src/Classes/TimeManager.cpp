@@ -1,29 +1,35 @@
-#include <ArduinoJson.h>
-#include <HTTPClient.h>
-// #include <Time.h>
-#include <TimeLib.h>
-#include "secrets.h"
-#include "time_manager.h"
-// String LATITUDE = "30.267153";
-// String LONGITUDE = "-97.743057";
+#include <Classes/TimeManager.h>
 
-time_t currentTime;
-time_t lastTimeUpdated = 0;
-int currentDay;
-time_t sunriseTime = 0;
-time_t sunsetTime = 0;
+TimeManager::DayStatus TimeManager::getDayStatus(){
+    int nowTime = getTimeOfDay(now());
+    if (nowTime <= getTimeOfDay(twilightBeginTime)){
+        return DayStatus::Night;
+    } else if (nowTime <= getTimeOfDay(sunriseTime)){
+        return DayStatus::Twilight;
+    } else if (nowTime <= getTimeOfDay(sunsetTime)){
+        return DayStatus::Day;
+    } else if (nowTime <= getTimeOfDay(twilightEndTime)){
+        return DayStatus::Twilight;
+    }
+    return DayStatus::Night;
 
-time_t twilightBeginTime = 0; // time when morning twilight begins before sunrise
-time_t twilightEndTime = 0; // time when night twilight ends after sunset
-int gmtOffset;
-String setCurrentTimeUrl = "http://api.timezonedb.com/v2/get-time-zone?key=" + String(TIMEZONE_API_KEY) + "&format=json&by=position&lat=" + String(LATITUDE) + "&lng=" + String(LONGITUDE);
-//String fetchDaylightInfoUrl = "https://api.sunrise-sunset.org/json?lat=" + LATITUDE + "&lng=" + LONGITUDE + "&date="+String(year())+"-"+String(month())+"-"+String(day())+"&formatted=0";
-void initTime(){
-  setCurrentTime();
-  fetchDaylightInfo();
 }
 
-void setCurrentTime() {
+void TimeManager::updateForNewDay(){
+    if (currentDay != day(now()) || sunriseTime == 0) {
+      setCurrentTime();
+      fetchDaylightInfo();
+    }
+    if (day(sunsetTime) != day(now())) {
+      setCurrentTime();
+      fetchDaylightInfo();
+    }
+}
+
+TimeManager::TimeManager(){
+}
+
+void TimeManager::setCurrentTime(){
     HTTPClient http;
     
     // Build the url for the timezonedb API call
@@ -93,21 +99,7 @@ void setCurrentTime() {
     http.end();
 }
 
-time_t timeFromDaylightString(const char* daylightString) {
-  // Variables to hold date components
-  int yr, mnth, dy, hr, mn, sec; 
-
-  // Parse input string into date components
-  sscanf(daylightString, "%d-%d-%dT%d:%d:%d", &yr, &mnth, &dy, &hr, &mn, &sec); 
-
-  // Create tmElements_t struct from components
-  tmElements_t timeElements = { sec, mn, hr, weekday(), dy, mnth, yr - 1970 }; 
-
-  // Make time_t out of tmElements_t struct and return it
-  return makeTime(timeElements);  
-}
-
-void fetchDaylightInfo() {
+void TimeManager::fetchDaylightInfo(){
     HTTPClient http;
 
     // Build the url for the sunrise-sunset API call
@@ -175,5 +167,23 @@ void fetchDaylightInfo() {
     }
 
     // Free resources in use by http client
-    http.end(); 
+    http.end();
+}
+
+int TimeManager::getTimeOfDay(time_t time){
+  return hour(time) * 100 + minute(time);
+}
+
+time_t TimeManager::timeFromDaylightString(const char* daylightString) {
+  // Variables to hold date components
+  int yr, mnth, dy, hr, mn, sec; 
+
+  // Parse input string into date components
+  sscanf(daylightString, "%d-%d-%dT%d:%d:%d", &yr, &mnth, &dy, &hr, &mn, &sec); 
+
+  // Create tmElements_t struct from components
+  tmElements_t timeElements = { sec, mn, hr, weekday(), dy, mnth, yr  - 1970 }; 
+
+  // Make time_t out of tmElements_t struct and return it
+  return makeTime(timeElements);  
 }
