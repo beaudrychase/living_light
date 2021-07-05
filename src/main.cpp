@@ -1,5 +1,3 @@
-//#include <TelegramCertificate.h>
-//#include <UniversalTelegramBot.h>
 #include <main.h>
 
 
