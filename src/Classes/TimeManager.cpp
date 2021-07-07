@@ -2,13 +2,13 @@
 
 TimeManager::DayStatus TimeManager::getDayStatus(){
     time_t nowTime = getTimeOfDay(now());
-    if (nowTime <= getTimeOfDay(twilightBeginTime)){
+    if (nowTime <= getTimeOfDay(_civilTwilightBegin)){
         return DayStatus::Night;
-    } else if (nowTime <= getTimeOfDay(sunriseTime)){
+    } else if (nowTime <= getTimeOfDay(_sunrise)){
         return DayStatus::Twilight;
-    } else if (nowTime <= getTimeOfDay(sunsetTime)){
+    } else if (nowTime <= getTimeOfDay(_sunset)){
         return DayStatus::Day;
-    } else if (nowTime <= getTimeOfDay(twilightEndTime)){
+    } else if (nowTime <= getTimeOfDay(_civilTwilightEnd)){
         return DayStatus::Twilight;
     }
     return DayStatus::Night;
@@ -16,11 +16,11 @@ TimeManager::DayStatus TimeManager::getDayStatus(){
 }
 
 void TimeManager::updateForNewDay(){
-    if (currentDay != day(now()) || sunriseTime == 0) {
+    if (_currentDay != day(now()) || _sunrise == 0) {
       setCurrentTime();
       fetchDaylightInfo();
     }
-    if (day(sunsetTime) != day(now())) {
+    if (day(_sunset) != day(now())) {
       setCurrentTime();
       fetchDaylightInfo();
     }
@@ -85,8 +85,8 @@ void TimeManager::setCurrentTime(){
           setTime(timestamp);
 
           // Set the current date
-          currentDay = day(now());
-          lastTimeUpdated = now();
+          _currentDay = day(now());
+          _lastTimeUpdated = now();
           Serial.println(now());
         }
       }
@@ -140,19 +140,19 @@ void TimeManager::fetchDaylightInfo(){
           //Grab twilight begin time
           const char * twilightBeginParsed = results["civil_twilight_begin"];
           const char * twilightEndParsed = results["civil_twilight_end"];
-          twilightBeginTime = timeFromDaylightString(twilightBeginParsed) + gmtOffset;
-          twilightEndTime = timeFromDaylightString(twilightEndParsed) + gmtOffset;
+          _civilTwilightBegin = timeFromDaylightString(twilightBeginParsed) + gmtOffset;
+          _civilTwilightEnd = timeFromDaylightString(twilightEndParsed) + gmtOffset;
 
           // Grab sunrise time from results
           const char * sunriseParsed = results["sunrise"];
           
           // Adjust for GMT offset and subtract half of the fade time, so it starts changing before the actual time
-          sunriseTime = timeFromDaylightString(sunriseParsed) + gmtOffset; 
+          _sunrise = timeFromDaylightString(sunriseParsed) + gmtOffset; 
           
           // Grab sunset time from results
           const char * sunsetParsed = results["sunset"];
           // Adjust for GMT offset and subtract half of the fade time, so it starts changing before the actual time
-          sunsetTime = timeFromDaylightString(sunsetParsed) + gmtOffset;
+          _sunset = timeFromDaylightString(sunsetParsed) + gmtOffset;
 
           // If in debug mode, make sunrise time 10 seconds from now, and sunset time 30 seconds after sunrise has finished fading
           #if DEBUG_MODE
