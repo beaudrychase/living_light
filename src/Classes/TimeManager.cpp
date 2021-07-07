@@ -1,7 +1,7 @@
 #include <Classes/TimeManager.h>
 
 TimeManager::DayStatus TimeManager::getDayStatus(){
-    int nowTime = getTimeOfDay(now());
+    time_t nowTime = getTimeOfDay(now());
     if (nowTime <= getTimeOfDay(twilightBeginTime)){
         return DayStatus::Night;
     } else if (nowTime <= getTimeOfDay(sunriseTime)){
@@ -170,8 +170,9 @@ void TimeManager::fetchDaylightInfo(){
     http.end();
 }
 
-int TimeManager::getTimeOfDay(time_t time){
-  return hour(time) * 100 + minute(time);
+time_t TimeManager::getTimeOfDay(time_t time){
+    tmElements_t timeElements = { second(time), minute(time), hour(time), 0, 0, 0, 0};
+    return makeTime(timeElements);
 }
 
 time_t TimeManager::timeFromDaylightString(const char* daylightString) {

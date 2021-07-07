@@ -26,7 +26,7 @@ class TimeManager {
         + String(LONGITUDE);
 
     static time_t timeFromDaylightString(const char* daylightString);
-    static int getTimeOfDay(time_t time);
+    static time_t getTimeOfDay(time_t time);
 
     public:
     TimeManager();
