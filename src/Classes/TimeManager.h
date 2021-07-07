@@ -15,10 +15,18 @@ class TimeManager {
     time_t _sunrise = 0;
     time_t _sunset = 0;
 
+    time_t _midDayBegin = 0;
+    time_t _midDayEnd = 0;
+
+    time_t _horizonBegin = 0;
+    time_t _horizonEnd = 0;
+
     time_t _civilTwilightBegin = 0; // time when morning twilight begins before sunrise
     time_t _civilTwilightEnd = 0; // time when night twilight ends after sunset
+
     time_t _nauticalTwilightBegin = 0;
     time_t _nauticalTwilightEnd = 0;
+
     time_t _astronomicalTwilightBegin = 0;
     time_t _astronomicalTwilightEnd = 0;
     int gmtOffset;
@@ -32,6 +40,7 @@ class TimeManager {
     static time_t timeFromDaylightString(const char* daylightString);
     static time_t getTimeOfDay(time_t time);
     static void printTime(time_t time);
+    void setDayTimes();
     public:
     TimeManager();
     void printTimes();

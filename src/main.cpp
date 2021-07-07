@@ -84,7 +84,7 @@ void loop() {
         case TimeManager::DayStatus::Day:
             color = dayGenerator.generateColor(0.2);
             break;
-        case TimeManager::DayStatus::Twilight:
+        case TimeManager::DayStatus::CivilTwilight:
             color = twilightGenerator.generateColor(0.18);
             break;
         case TimeManager::DayStatus::Night:

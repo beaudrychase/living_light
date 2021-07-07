@@ -5,11 +5,11 @@ TimeManager::DayStatus TimeManager::getDayStatus(){
     if (nowTime <= getTimeOfDay(_civilTwilightBegin)){
         return DayStatus::Night;
     } else if (nowTime <= getTimeOfDay(_sunrise)){
-        return DayStatus::Twilight;
+        return DayStatus::CivilTwilight;
     } else if (nowTime <= getTimeOfDay(_sunset)){
         return DayStatus::Day;
     } else if (nowTime <= getTimeOfDay(_civilTwilightEnd)){
-        return DayStatus::Twilight;
+        return DayStatus::CivilTwilight;
     }
     return DayStatus::Night;
 
@@ -178,7 +178,15 @@ void TimeManager::fetchDaylightInfo(){
 
     // Free resources in use by http client
     http.end();
+    setDayTimes();
     printTimes();
+}
+
+void TimeManager::setDayTimes(){
+    _horizonEnd = _sunrise + (getTimeOfDay(_sunrise) - getTimeOfDay(_nauticalTwilightBegin));
+    _horizonBegin = _sunset - (getTimeOfDay(_sunset) - getTimeOfDay(_nauticalTwilightEnd));
+    _midDayBegin = (_sunrise + (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) - (getTimeOfDay(_sunrise) - getTimeOfDay(_nauticalTwilightBegin));
+    _midDayEnd = (_sunset - (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) + (getTimeOfDay(_nauticalTwilightEnd) - getTimeOfDay(_sunset));
 }
 
 time_t TimeManager::getTimeOfDay(time_t time){
@@ -201,17 +209,21 @@ time_t TimeManager::timeFromDaylightString(const char* daylightString) {
 }
 
 void TimeManager::printTimes(){
-    time_t timeArray[8] = {
+    time_t timeArray[12] = {
         _astronomicalTwilightBegin,
         _nauticalTwilightBegin,
         _civilTwilightBegin,
         _sunrise,
+        _horizonEnd,
+        _midDayBegin,
+        _midDayEnd,
+        _horizonBegin,
         _sunset,
         _civilTwilightEnd,
         _nauticalTwilightEnd,
         _astronomicalTwilightEnd
         };
-    for (int i = 0 ; i < 8; i++){
+    for (int i = 0 ; i < 12; i++){
         printTime(timeArray[i]);
     }
   }
