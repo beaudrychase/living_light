@@ -138,10 +138,20 @@ void TimeManager::fetchDaylightInfo(){
           const JsonObject& results = doc["results"];
 
           //Grab twilight begin time
-          const char * twilightBeginParsed = results["civil_twilight_begin"];
-          const char * twilightEndParsed = results["civil_twilight_end"];
-          _civilTwilightBegin = timeFromDaylightString(twilightBeginParsed) + gmtOffset;
-          _civilTwilightEnd = timeFromDaylightString(twilightEndParsed) + gmtOffset;
+          const char * civilTwilightBeginParsed = results["civil_twilight_begin"];
+          const char * civilTwilightEndParsed = results["civil_twilight_end"];
+          _civilTwilightBegin = timeFromDaylightString(civilTwilightBeginParsed) + gmtOffset;
+          _civilTwilightEnd = timeFromDaylightString(civilTwilightEndParsed) + gmtOffset;
+
+          const char * nauticalTwilightBeginParsed = results["nautical_twilight_begin"];
+          const char * nauticalTwilightEndParsed = results["nautical_twilight_end"];
+          _nauticalTwilightBegin = timeFromDaylightString(nauticalTwilightBeginParsed) + gmtOffset;
+          _nauticalTwilightEnd = timeFromDaylightString(nauticalTwilightEndParsed) + gmtOffset;
+
+          const char * astronomicalTwilightBeginParsed = results["astronomical_twilight_begin"];
+          const char * astronomicalTwilightEndParsed = results["astronomical_twilight_end"];
+          _astronomicalTwilightBegin = timeFromDaylightString(astronomicalTwilightBeginParsed) + gmtOffset;
+          _astronomicalTwilightEnd = timeFromDaylightString(astronomicalTwilightEndParsed) + gmtOffset;
 
           // Grab sunrise time from results
           const char * sunriseParsed = results["sunrise"];
@@ -168,6 +178,7 @@ void TimeManager::fetchDaylightInfo(){
 
     // Free resources in use by http client
     http.end();
+    printTimes();
 }
 
 time_t TimeManager::getTimeOfDay(time_t time){
@@ -186,5 +197,37 @@ time_t TimeManager::timeFromDaylightString(const char* daylightString) {
   tmElements_t timeElements = { sec, mn, hr, weekday(), dy, mnth, yr  - 1970 }; 
 
   // Make time_t out of tmElements_t struct and return it
-  return makeTime(timeElements);  
+  return makeTime(timeElements);
 }
+
+void TimeManager::printTimes(){
+    time_t timeArray[8] = {
+        _astronomicalTwilightBegin,
+        _nauticalTwilightBegin,
+        _civilTwilightBegin,
+        _sunrise,
+        _sunset,
+        _civilTwilightEnd,
+        _nauticalTwilightEnd,
+        _astronomicalTwilightEnd
+        };
+    for (int i = 0 ; i < 8; i++){
+        printTime(timeArray[i]);
+    }
+  }
+
+void TimeManager::printTime(time_t time){
+    Serial.print(year(time));
+    Serial.print("-");
+    Serial.print(month(time));
+    Serial.print("-");
+    Serial.print(day(time));
+    Serial.print(" ");
+    Serial.print(hour(time));
+    Serial.print(":");
+    Serial.print(minute(time));
+    Serial.print(":");
+    Serial.print(second(time));
+    Serial.println(" ");
+}
+
