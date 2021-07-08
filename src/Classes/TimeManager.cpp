@@ -2,14 +2,30 @@
 
 TimeManager::DayStatus TimeManager::getDayStatus(){
     time_t nowTime = getTimeOfDay(now());
-    if (nowTime <= getTimeOfDay(_civilTwilightBegin)){
+    if (nowTime <= getTimeOfDay(_astronomicalTwilightBegin)){
         return DayStatus::Night;
+    } else if (nowTime <= getTimeOfDay(_nauticalTwilightBegin)){
+        return DayStatus::AstonomicalTwilight;
+    } else if (nowTime <= getTimeOfDay(_civilTwilightBegin)){
+        return DayStatus::NauticalTwilight;
     } else if (nowTime <= getTimeOfDay(_sunrise)){
         return DayStatus::CivilTwilight;
-    } else if (nowTime <= getTimeOfDay(_sunset)){
+    } else if (nowTime <= getTimeOfDay(_horizonEnd)){
+        return DayStatus::Horizon;
+    } else if (nowTime <= getTimeOfDay(_midDayBegin)){
         return DayStatus::Day;
+    } else if (nowTime <= getTimeOfDay(_midDayEnd)){
+        return DayStatus::MidDay;
+    } else if (nowTime <= getTimeOfDay(_horizonBegin)){
+        return DayStatus::Day;
+    } else if (nowTime <= getTimeOfDay(_sunset)){
+        return DayStatus::Horizon;
     } else if (nowTime <= getTimeOfDay(_civilTwilightEnd)){
         return DayStatus::CivilTwilight;
+    } else if (nowTime <= getTimeOfDay(_nauticalTwilightEnd)){
+        return DayStatus::NauticalTwilight;
+    } else if (nowTime <= getTimeOfDay(_astronomicalTwilightEnd)){
+        return DayStatus::AstonomicalTwilight;
     }
     return DayStatus::Night;
 
