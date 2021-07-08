@@ -11,6 +11,11 @@ OrderedColorGenerator dayGenerator(
     0.04, 0.04,
     0.028, 0.03,
     0.025, 0.03);
+OrderedColorGenerator midDayGenerator(
+    OrderedColorGenerator::Order::BGR,
+    0.04, 0.04,
+    0.035, 0.04,
+    0.035, 0.04);
 OrderedColorGenerator twilightGenerator(
     OrderedColorGenerator::Order::RGB,
     0.04, 0.04,
@@ -81,17 +86,26 @@ void setup() {
 void loop() {
     SmoothColor color;
     switch(timeManager.getDayStatus()){
-        case TimeManager::DayStatus::Day:
-            color = dayGenerator.generateColor(0.2);
+        case TimeManager::DayStatus::Night:
+            color = nightGenerator.generateColor(10);
+            break;
+        case TimeManager::DayStatus::AstonomicalTwilight:
+            color = nightGenerator.generateColor(11);
+            break;
+        case TimeManager::DayStatus::NauticalTwilight:
+            color = nightGenerator.generateColor(12);
             break;
         case TimeManager::DayStatus::CivilTwilight:
-            color = twilightGenerator.generateColor(0.18);
+            color = twilightGenerator.generateColor(13);
             break;
-        case TimeManager::DayStatus::Night:
-            color = nightGenerator.generateColor(0.15);
+        case TimeManager::DayStatus::Horizon:
+            color = twilightGenerator.generateColor(14);
             break;
-        default:
-            color = nightGenerator.generateColor(0.15);
+        case TimeManager::DayStatus::Day:
+            color = dayGenerator.generateColor(15);
+            break;
+        case TimeManager::DayStatus::MidDay:
+            color = dayGenerator.generateColor(18);
             break;
         
     }
