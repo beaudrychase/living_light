@@ -199,10 +199,10 @@ void TimeManager::fetchDaylightInfo(){
 }
 
 void TimeManager::setDayTimes(){
-    _horizonEnd = _sunrise + (getTimeOfDay(_sunrise) - getTimeOfDay(_nauticalTwilightBegin));
-    _horizonBegin = _sunset - (getTimeOfDay(_sunset) - getTimeOfDay(_nauticalTwilightEnd));
-    _midDayBegin = (_sunrise + (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) - (getTimeOfDay(_sunrise) - getTimeOfDay(_nauticalTwilightBegin));
-    _midDayEnd = (_sunset - (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) + (getTimeOfDay(_nauticalTwilightEnd) - getTimeOfDay(_sunset));
+    _horizonEnd = _sunrise + (getTimeOfDay(_sunrise) - getTimeOfDay(_civilTwilightBegin));
+    _horizonBegin = _sunset - (getTimeOfDay(_civilTwilightEnd) - getTimeOfDay(_sunset));
+    _midDayBegin = (_sunrise + (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) - (getTimeOfDay(_sunrise) - getTimeOfDay(_civilTwilightBegin));
+    _midDayEnd = (_sunset - (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) + (getTimeOfDay(_civilTwilightEnd) - getTimeOfDay(_sunset));
 }
 
 time_t TimeManager::getTimeOfDay(time_t time){
@@ -233,7 +233,9 @@ void TimeManager::printTimes(){
         _horizonEnd,
         _midDayBegin,
         _midDayEnd,
+
         _horizonBegin,
+
         _sunset,
         _civilTwilightEnd,
         _nauticalTwilightEnd,

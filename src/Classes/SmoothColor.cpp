@@ -15,9 +15,11 @@
     this->normalizeColor(brightness);
   }
   void SmoothColor::normalizeColor(double brightness){
-//    double normFactor = brightness / (red + green + blue) / 3.0;
-    double normFactor = (red + green + blue);
-    red = (red / normFactor) * brightness;
-    green = (green / normFactor) * brightness;
-    blue = (blue / normFactor) * brightness;
+    double normFactor = (red + green + blue) / 3.0;
+    // red = (red * normFactor) * brightness;
+    // green = (green * normFactor) * brightness;
+    // blue = (blue * normFactor) * brightness;
+    red = red * brightness;
+    green = green * brightness;
+    blue = blue * brightness;
   }

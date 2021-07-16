@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+    "settings": {
+        "files.associations": {
+            "array": "cpp",
+            "*.tcc": "cpp",
+            "algorithm": "cpp",
+            "random": "cpp",
+            "numeric": "cpp",
+            "arduinoota.h": "c",
+            "fastled.h": "c",
+            "arduino.h": "c"
+        }
+    }
+}

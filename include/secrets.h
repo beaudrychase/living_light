@@ -1,7 +1,7 @@
 #define BOTtoken "1707512527:AAHNhiRD9hEDA0lwNwV2uosUyHVREX__MAE"
 #define CHAT_ID "1536236197"
-#define WIFI_SSID "aaba"
-#define WIFI_PASS "beaudrychaseinternet"
+#define WIFI_SSID "p/g"
+#define WIFI_PASS "#0Ne23456789"
 #define OTA_PASS "beauchase213"
 
 #define TIMEZONE_API_KEY "5ANOLCRSRKFE"
