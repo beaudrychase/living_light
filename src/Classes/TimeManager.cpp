@@ -2,25 +2,41 @@
 
 TimeManager::DayStatus TimeManager::getDayStatus(){
     time_t nowTime = getTimeOfDay(now());
-    if (nowTime <= getTimeOfDay(twilightBeginTime)){
+    if (nowTime <= getTimeOfDay(_astronomicalTwilightBegin)){
         return DayStatus::Night;
-    } else if (nowTime <= getTimeOfDay(sunriseTime)){
-        return DayStatus::Twilight;
-    } else if (nowTime <= getTimeOfDay(sunsetTime)){
+    } else if (nowTime <= getTimeOfDay(_nauticalTwilightBegin)){
+        return DayStatus::AstonomicalTwilight;
+    } else if (nowTime <= getTimeOfDay(_civilTwilightBegin)){
+        return DayStatus::NauticalTwilight;
+    } else if (nowTime <= getTimeOfDay(_sunrise)){
+        return DayStatus::CivilTwilight;
+    } else if (nowTime <= getTimeOfDay(_horizonEnd)){
+        return DayStatus::Horizon;
+    } else if (nowTime <= getTimeOfDay(_midDayBegin)){
         return DayStatus::Day;
-    } else if (nowTime <= getTimeOfDay(twilightEndTime)){
-        return DayStatus::Twilight;
+    } else if (nowTime <= getTimeOfDay(_midDayEnd)){
+        return DayStatus::MidDay;
+    } else if (nowTime <= getTimeOfDay(_horizonBegin)){
+        return DayStatus::Day;
+    } else if (nowTime <= getTimeOfDay(_sunset)){
+        return DayStatus::Horizon;
+    } else if (nowTime <= getTimeOfDay(_civilTwilightEnd)){
+        return DayStatus::CivilTwilight;
+    } else if (nowTime <= getTimeOfDay(_nauticalTwilightEnd)){
+        return DayStatus::NauticalTwilight;
+    } else if (nowTime <= getTimeOfDay(_astronomicalTwilightEnd)){
+        return DayStatus::AstonomicalTwilight;
     }
     return DayStatus::Night;
 
 }
 
 void TimeManager::updateForNewDay(){
-    if (currentDay != day(now()) || sunriseTime == 0) {
+    if (_currentDay != day(now()) || _sunrise == 0) {
       setCurrentTime();
       fetchDaylightInfo();
     }
-    if (day(sunsetTime) != day(now())) {
+    if (day(_sunset) != day(now())) {
       setCurrentTime();
       fetchDaylightInfo();
     }
@@ -85,8 +101,8 @@ void TimeManager::setCurrentTime(){
           setTime(timestamp);
 
           // Set the current date
-          currentDay = day(now());
-          lastTimeUpdated = now();
+          _currentDay = day(now());
+          _lastTimeUpdated = now();
           Serial.println(now());
         }
       }
@@ -138,21 +154,31 @@ void TimeManager::fetchDaylightInfo(){
           const JsonObject& results = doc["results"];
 
           //Grab twilight begin time
-          const char * twilightBeginParsed = results["civil_twilight_begin"];
-          const char * twilightEndParsed = results["civil_twilight_end"];
-          twilightBeginTime = timeFromDaylightString(twilightBeginParsed) + gmtOffset;
-          twilightEndTime = timeFromDaylightString(twilightEndParsed) + gmtOffset;
+          const char * civilTwilightBeginParsed = results["civil_twilight_begin"];
+          const char * civilTwilightEndParsed = results["civil_twilight_end"];
+          _civilTwilightBegin = timeFromDaylightString(civilTwilightBeginParsed) + gmtOffset;
+          _civilTwilightEnd = timeFromDaylightString(civilTwilightEndParsed) + gmtOffset;
+
+          const char * nauticalTwilightBeginParsed = results["nautical_twilight_begin"];
+          const char * nauticalTwilightEndParsed = results["nautical_twilight_end"];
+          _nauticalTwilightBegin = timeFromDaylightString(nauticalTwilightBeginParsed) + gmtOffset;
+          _nauticalTwilightEnd = timeFromDaylightString(nauticalTwilightEndParsed) + gmtOffset;
+
+          const char * astronomicalTwilightBeginParsed = results["astronomical_twilight_begin"];
+          const char * astronomicalTwilightEndParsed = results["astronomical_twilight_end"];
+          _astronomicalTwilightBegin = timeFromDaylightString(astronomicalTwilightBeginParsed) + gmtOffset;
+          _astronomicalTwilightEnd = timeFromDaylightString(astronomicalTwilightEndParsed) + gmtOffset;
 
           // Grab sunrise time from results
           const char * sunriseParsed = results["sunrise"];
           
           // Adjust for GMT offset and subtract half of the fade time, so it starts changing before the actual time
-          sunriseTime = timeFromDaylightString(sunriseParsed) + gmtOffset; 
+          _sunrise = timeFromDaylightString(sunriseParsed) + gmtOffset; 
           
           // Grab sunset time from results
           const char * sunsetParsed = results["sunset"];
           // Adjust for GMT offset and subtract half of the fade time, so it starts changing before the actual time
-          sunsetTime = timeFromDaylightString(sunsetParsed) + gmtOffset;
+          _sunset = timeFromDaylightString(sunsetParsed) + gmtOffset;
 
           // If in debug mode, make sunrise time 10 seconds from now, and sunset time 30 seconds after sunrise has finished fading
           #if DEBUG_MODE
@@ -168,6 +194,15 @@ void TimeManager::fetchDaylightInfo(){
 
     // Free resources in use by http client
     http.end();
+    setDayTimes();
+    printTimes();
+}
+
+void TimeManager::setDayTimes(){
+    _horizonEnd = _sunrise + (getTimeOfDay(_sunrise) - getTimeOfDay(_civilTwilightBegin));
+    _horizonBegin = _sunset - (getTimeOfDay(_civilTwilightEnd) - getTimeOfDay(_sunset));
+    _midDayBegin = (_sunrise + (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) - (getTimeOfDay(_sunrise) - getTimeOfDay(_civilTwilightBegin));
+    _midDayEnd = (_sunset - (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) + (getTimeOfDay(_civilTwilightEnd) - getTimeOfDay(_sunset));
 }
 
 time_t TimeManager::getTimeOfDay(time_t time){
@@ -186,5 +221,43 @@ time_t TimeManager::timeFromDaylightString(const char* daylightString) {
   tmElements_t timeElements = { sec, mn, hr, weekday(), dy, mnth, yr  - 1970 }; 
 
   // Make time_t out of tmElements_t struct and return it
-  return makeTime(timeElements);  
+  return makeTime(timeElements);
 }
+
+void TimeManager::printTimes(){
+    time_t timeArray[12] = {
+        _astronomicalTwilightBegin,
+        _nauticalTwilightBegin,
+        _civilTwilightBegin,
+        _sunrise,
+        _horizonEnd,
+        _midDayBegin,
+        _midDayEnd,
+
+        _horizonBegin,
+
+        _sunset,
+        _civilTwilightEnd,
+        _nauticalTwilightEnd,
+        _astronomicalTwilightEnd
+        };
+    for (int i = 0 ; i < 12; i++){
+        printTime(timeArray[i]);
+    }
+  }
+
+void TimeManager::printTime(time_t time){
+    Serial.print(year(time));
+    Serial.print("-");
+    Serial.print(month(time));
+    Serial.print("-");
+    Serial.print(day(time));
+    Serial.print(" ");
+    Serial.print(hour(time));
+    Serial.print(":");
+    Serial.print(minute(time));
+    Serial.print(":");
+    Serial.print(second(time));
+    Serial.println(" ");
+}
+

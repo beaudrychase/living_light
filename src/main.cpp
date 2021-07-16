@@ -6,21 +6,35 @@ TaskHandle_t networkingTask;
 WiFiClientSecure client;
 Breath breath = Breath();
 TimeManager timeManager = TimeManager();
-OrderedColorGenerator dayGenerator(
+OrderedColorGenerator midDayGenerator(
     OrderedColorGenerator::Order::BGR,
     0.04, 0.04,
     0.028, 0.03,
     0.025, 0.03);
+OrderedColorGenerator dayGenerator(
+    OrderedColorGenerator::Order::BGR,
+    0.04, 0.04,
+    0.035, 0.04,
+    0.035, 0.04
+);
+OrderedColorGenerator horizonGenerator(
+    OrderedColorGenerator::Order::RBG,
+    0.04, 0.04,
+    0.003, 0.0065,
+    0.006, 0.01
+);
 OrderedColorGenerator twilightGenerator(
     OrderedColorGenerator::Order::RGB,
     0.04, 0.04,
-    0.006, 0.009,
-    0.002, 0.003);
+    0.004, 0.010,
+    0.0001, 0.001
+);
 OrderedColorGenerator nightGenerator(
     OrderedColorGenerator::Order::RGB,
     0.1, 0.1,
-    0.001, 0.0005,
-    0.000, 0.0000015);
+    0.000001, 0.0000005,
+    0.000000, 0.0000000015
+);
 //UniversalTelegramBot bot(BOTtoken, client);
 
 
@@ -81,21 +95,33 @@ void setup() {
 void loop() {
     SmoothColor color;
     switch(timeManager.getDayStatus()){
-        case TimeManager::DayStatus::Day:
-            color = dayGenerator.generateColor(0.2);
-            break;
-        case TimeManager::DayStatus::Twilight:
-            color = twilightGenerator.generateColor(0.18);
-            break;
         case TimeManager::DayStatus::Night:
-            color = nightGenerator.generateColor(0.15);
+            color = nightGenerator.generateColor(0.1);
             break;
-        default:
-            color = nightGenerator.generateColor(0.15);
+        case TimeManager::DayStatus::AstonomicalTwilight:
+            color = nightGenerator.generateColor(0.000000000000000000001);
+            break;
+        case TimeManager::DayStatus::NauticalTwilight:
+            color = nightGenerator.generateColor(0.0001);
+            break;
+        case TimeManager::DayStatus::CivilTwilight:
+            color = twilightGenerator.generateColor(0.005);
+            break;
+        case TimeManager::DayStatus::Horizon:
+            color = horizonGenerator.generateColor(0.10);
+            break;
+        case TimeManager::DayStatus::Day:
+            color = dayGenerator.generateColor(0.16);
+            break;
+        case TimeManager::DayStatus::MidDay:
+            color = midDayGenerator.generateColor(0.21);
             break;
         
     }
+    // color = color = twilightGenerator.generateColor(0.005);
+    // color = nightGenerator.generateColor(5);
     // color = dayGenerator.generateColor(0.2);
+    // color = nightGenerator.generateColor(0.05);
     if (randomModeOn) {
         color = randomColor();
     }

@@ -25,17 +25,17 @@ SmoothColor OrderedColorGenerator::generateColor(double brightness){
     ordered[2] = min(rand[0], min(rand[1], rand[2]));
     switch(_order){
         case Order::RGB:
-            return SmoothColor(ordered[0], ordered[1], ordered[2],brightness);
+            return SmoothColor(ordered[0], ordered[1], ordered[2], brightness);
         case Order::RBG:
-            return SmoothColor(ordered[0], ordered[2], ordered[1],brightness);
+            return SmoothColor(ordered[0], ordered[2], ordered[1], brightness);
         case Order::GRB:
-            return SmoothColor(ordered[1], ordered[0], ordered[2],brightness);
+            return SmoothColor(ordered[1], ordered[0], ordered[2], brightness);
         case Order::GBR:
-            return SmoothColor(ordered[2], ordered[0], ordered[1],brightness);
+            return SmoothColor(ordered[2], ordered[0], ordered[1], brightness);
         case Order::BRG:
-            return SmoothColor(ordered[1], ordered[2], ordered[0],brightness);
+            return SmoothColor(ordered[1], ordered[2], ordered[0], brightness);
         default:
-            return SmoothColor(ordered[2], ordered[1], ordered[0],brightness);
+            return SmoothColor(ordered[2], ordered[1], ordered[0], brightness);
     }
 
 
