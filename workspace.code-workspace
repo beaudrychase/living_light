@@ -13,7 +13,8 @@
             "numeric": "cpp",
             "arduinoota.h": "c",
             "fastled.h": "c",
-            "arduino.h": "c"
+            "arduino.h": "c",
+            "streambuf": "c"
         }
     }
 }

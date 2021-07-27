@@ -8,6 +8,7 @@ class DitherManager {
     static const int _greenOffset = (DITHER_LEVEL / 3);
     static const int _blueOffset = (DITHER_LEVEL / 3) * 2.0;
     int _frameArray[DITHER_LEVEL];
+    CLEDController *pCur = CLEDController::head();
     
 
     int _frame = 0;
@@ -18,7 +19,6 @@ class DitherManager {
     void randomize(int arr[], int n);
     inline void dithering(int idx, int r, int g, int b);
     inline int ditherSingle(int idx, int channel);
-    inline int getIdx(int r, int c);
 
     public:
     DitherManager();

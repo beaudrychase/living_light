@@ -31,9 +31,7 @@ inline void DitherManager::dithering(int idx, int r, int g, int b) {
     // _leds[idx].setRGB(1,1,1);
 }
 
-inline int DitherManager::getIdx(int r, int c) {
-  return r * COL + c;
-}
+
 
 void DitherManager::swap (int *a, int *b)
 {
@@ -43,11 +41,10 @@ void DitherManager::swap (int *a, int *b)
 }
 
 void DitherManager::setColor(int red, int green, int blue) {
-  for (int r = 0; r < ROW; r++) {
-    for (int c = 0; c < COL; c++) {
-      dithering(getIdx(r, c), red, green, blue);
+    for (int i = 0; i < LED_NUM; i++) {
+      dithering(i, red, green, blue);
     }
-  }
+//   Serial.println(red /DITHER_LEVEL);
 //  delay(1000);
 //  if ((actual_frame + 1) % DITHER_LEVEL == 0) {
 //    count++;
@@ -58,5 +55,6 @@ void DitherManager::setColor(int red, int green, int blue) {
 //  }
   _actualFrame = (_actualFrame + 1) % DITHER_LEVEL;
   _frame = _frameArray[_actualFrame];
-  FastLED.show();
+//   FastLED.show();
+  pCur->showLeds();
 }
