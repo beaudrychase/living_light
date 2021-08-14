@@ -1,6 +1,6 @@
 #define STATIC_SMOOTHNESS 18000
 #define SMOOTHNESS 24000
-#define DITHER_LEVEL 34
+#define DITHER_LEVEL 55
 #define LED_NUM 64
 #define DATA_PIN 18
 #define CLOCK_PIN 5

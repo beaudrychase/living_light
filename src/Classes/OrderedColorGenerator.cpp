@@ -15,11 +15,11 @@ OrderedColorGenerator::OrderedColorGenerator(OrderedColorGenerator::Order order,
 }
 
 SmoothColor OrderedColorGenerator::generateColor(double brightness){
-    int rand[3];
-    rand[0] = random(_redMin, _redMax);
-    rand[1] = random(_greenMin, _greenMax);
-    rand[2] = random(_blueMin, _blueMax);
-    int ordered[3];
+    double rand[3];
+    rand[0] = static_cast<double>(random(_redMin, _redMax)) / denom;
+    rand[1] = static_cast<double>(random(_greenMin, _greenMax)) / denom;
+    rand[2] = static_cast<double>(random(_blueMin, _blueMax)) / denom;
+    double ordered[3];
     ordered[0] = max(rand[0], max(rand[1], rand[2]));
     ordered[1] = max(min(rand[0], rand[1]), min(rand[1], rand[2]));
     ordered[2] = min(rand[0], min(rand[1], rand[2]));

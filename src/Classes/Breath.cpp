@@ -22,7 +22,8 @@ void Breath::breathIteration(SmoothColor color, int arrayLen, float* brightnessA
     double smooth_r = color.red * increasing + oldColor.red * (1.0 - increasing);
     double smooth_g = color.green * increasing + oldColor.green * (1.0 - increasing);
     double smooth_b = color.blue * increasing + oldColor.blue * (1.0 - increasing);
-    double smoothed_cached_brightness = brightnessArray[i] / (smooth_r + smooth_g + smooth_b) / 3.0;
+    // double smoothed_cached_brightness = brightnessArray[i] / (smooth_r + smooth_g + smooth_b) / 3.0;
+    double smoothed_cached_brightness = brightnessArray[i];
 
     int red = (int) (smooth_r * smoothed_cached_brightness);
     int green = (int) (smooth_g * smoothed_cached_brightness);
