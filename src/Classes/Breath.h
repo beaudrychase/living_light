@@ -9,6 +9,10 @@ class Breath {
 private:
     double _smoothness = SMOOTHNESS;
     static int _breathLength;
+    /*
+    Due to memory restrictions of the ESP32 the CachedBrightness array is split into two parts. The static one is defined in static memory while the dynamic
+    one is dynamically allocated at runtime. Functionally they act like two halves of a single array where static + dynamic
+    */
     float _staticCachedBrightness[STATIC_SMOOTHNESS];
     float* _dynamicCachedBrightness;
     const int _dynamicLength = SMOOTHNESS - STATIC_SMOOTHNESS;
