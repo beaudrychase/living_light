@@ -1,6 +1,7 @@
 #include <Classes/DitherManager.h>
 
 CRGB _leds[NUM_LEDS];
+int _ledIndexShifter[NUM_LEDS];
 
 void DitherManager::randomize(int arr[], int n) {
   for (int i = n - 1; i > 0; i--)
@@ -15,7 +16,11 @@ DitherManager::DitherManager(){
     for (int i = 0; i < DITHER_LEVEL; i++) {
         _frameArray[i] = i;
     }
+    for (int i = 0; i < NUM_LEDS; i++) {
+        _ledIndexShifter[i] = i;
+    }
     randomize(_frameArray, DITHER_LEVEL);
+    randomize(_ledIndexShifter, NUM_LEDS);
 }
 
 inline int DitherManager::ditherSingle(int idx, int channel) {
@@ -45,7 +50,7 @@ void DitherManager::setColor(int red, int green, int blue) {
       dithering(i, red, green, blue);
     }
 //   Serial.println(red /DITHER_LEVEL);
-//  delay(1000);
+    // delay(1000);
 //  if ((actual_frame + 1) % DITHER_LEVEL == 0) {
 //    count++;
 //    if (count % 100000 == 0) {
