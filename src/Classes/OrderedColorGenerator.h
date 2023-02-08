@@ -1,12 +1,27 @@
 #include <Classes/SmoothColor.h>
 #include <ISmoothColorGenerator.h>
 #include <Arduino.h>
-enum Color {red, green, blue};
+enum Color
+{
+    red,
+    green,
+    blue
+};
 
-class OrderedColorGenerator: ISmoothColorGenerator{
-    public:
-    enum class Order{RGB, RBG, GRB, GBR, BRG, BGR};
-    private:
+class OrderedColorGenerator : ISmoothColorGenerator
+{
+public:
+    enum class Order
+    {
+        RGB,
+        RBG,
+        GRB,
+        GBR,
+        BRG,
+        BGR
+    };
+
+private:
     Order _order;
     int _redMin;
     int _redMax;
@@ -17,7 +32,7 @@ class OrderedColorGenerator: ISmoothColorGenerator{
     int denom = __INT32_MAX__;
     int convertFloat(double value);
 
-    public:
+public:
     OrderedColorGenerator(Order order, double redMin, double redMax, double greenMin, double greenMax, double blueMin, double blueMax);
     SmoothColor generateColor(double brightness);
 };

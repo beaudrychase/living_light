@@ -1,5 +1,6 @@
 #pragma once
-class SmoothColor {
+class SmoothColor
+{
 public:
   double red;
   double blue;

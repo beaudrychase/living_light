@@ -1,6 +1,6 @@
 
 #include <TimeLib.h>
-#include <WiFiClientSecure.h> 
+#include <WiFiClientSecure.h>
 
 #include <Classes/Breath.h>
 #include <Classes/TimeManager.h>
@@ -20,4 +20,4 @@ SmoothColor nightColor();
 SmoothColor randomColor();
 
 int getTimeOfDay(time_t time);
-void networkingCode( void * pvParameters );
+void networkingCode(void *pvParameters);

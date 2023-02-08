@@ -2,7 +2,8 @@
 
 CRGB _leds[NUM_LEDS];
 
-void DitherManager::randomize(int arr[], int n) {
+void DitherManager::randomize(int arr[], int n)
+{
   for (int i = n - 1; i > 0; i--)
   {
     int j = random(0, n);
@@ -10,56 +11,62 @@ void DitherManager::randomize(int arr[], int n) {
   }
 }
 
-DitherManager::DitherManager(){
-    FastLED.addLeds<DOTSTAR, DATA_PIN, CLOCK_PIN, BGR>(_leds, NUM_LEDS);
-    for (int i = 0; i < DITHER_LEVEL; i++) {
-        _frameArray[i] = i;
-    }
-    randomize(_frameArray, DITHER_LEVEL);
+DitherManager::DitherManager()
+{
+  FastLED.addLeds<DOTSTAR, DATA_PIN, CLOCK_PIN, BGR>(_leds, NUM_LEDS);
+  for (int i = 0; i < DITHER_LEVEL; i++)
+  {
+    _frameArray[i] = i;
+  }
+  randomize(_frameArray, DITHER_LEVEL);
 }
 
-inline int DitherManager::ditherSingle(int idx, int brightness, int high_frames) {
-  return brightness + (int) (high_frames > (idx + _frame) % DITHER_LEVEL);
+inline int DitherManager::ditherSingle(int idx, int brightness, int high_frames)
+{
+  return brightness + (int)(high_frames > (idx + _frame) % DITHER_LEVEL);
 }
 
-inline void DitherManager::dithering(int idx, int r, int r_high_frames, int g, int g_high_frames, int b, int b_high_frames) {
-    _leds[idx].setRGB(
-        ditherSingle((idx) % DITHER_LEVEL, r, r_high_frames),
-        ditherSingle((idx + _greenOffset) % DITHER_LEVEL, g, g_high_frames),
-        ditherSingle((idx + _blueOffset) % DITHER_LEVEL, b, b_high_frames)
-        );
-    // _leds[idx].setRGB(1,1,1);
+inline void DitherManager::dithering(int idx, int r, int r_high_frames, int g, int g_high_frames, int b, int b_high_frames)
+{
+  _leds[idx].setRGB(
+      ditherSingle((idx) % DITHER_LEVEL, r, r_high_frames),
+      ditherSingle((idx + _greenOffset) % DITHER_LEVEL, g, g_high_frames),
+      ditherSingle((idx + _blueOffset) % DITHER_LEVEL, b, b_high_frames));
+  // _leds[idx].setRGB(1,1,1);
 }
 
-inline int DitherManager::getIdx(int r, int c) {
+inline int DitherManager::getIdx(int r, int c)
+{
   return r * COL + c;
 }
 
-void DitherManager::swap (int *a, int *b)
+void DitherManager::swap(int *a, int *b)
 {
   int temp = *a;
   *a = *b;
   *b = temp;
 }
 
-void DitherManager::setColor(int red, int green, int blue) {
+void DitherManager::setColor(int red, int green, int blue)
+{
   int red_base = red / DITHER_LEVEL;
   int red_high_frames = red % DITHER_LEVEL;
   int green_base = green / DITHER_LEVEL;
   int green_high_frames = green % DITHER_LEVEL;
   int blue_base = blue / DITHER_LEVEL;
   int blue_high_frames = blue % DITHER_LEVEL;
-  for (int i = 0; i < ROW * COL; i++) {
+  for (int i = 0; i < ROW * COL; i++)
+  {
     dithering(i, red_base, red_high_frames, green_base, green_high_frames, blue_base, blue_high_frames);
   }
-//  delay(1000);
-//  if ((actual_frame + 1) % DITHER_LEVEL == 0) {
-//    count++;
-//    if (count % 100000 == 0) {
-//      count = 0;
-//      swap(&frame_array[random(0, DITHER_LEVEL)], &frame_array[random(0, DITHER_LEVEL)]);
-//    }
-//  }
+  //  delay(1000);
+  //  if ((actual_frame + 1) % DITHER_LEVEL == 0) {
+  //    count++;
+  //    if (count % 100000 == 0) {
+  //      count = 0;
+  //      swap(&frame_array[random(0, DITHER_LEVEL)], &frame_array[random(0, DITHER_LEVEL)]);
+  //    }
+  //  }
   _actualFrame = (_actualFrame + 1) % DITHER_LEVEL;
   _frame = _frameArray[_actualFrame];
   FastLED.show();
