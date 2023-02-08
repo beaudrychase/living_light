@@ -7,6 +7,7 @@ private:
     static const int _greenOffset = (DITHER_LEVEL / 3);
     static const int _blueOffset = (DITHER_LEVEL / 3) * 2.0;
     int _frameArray[DITHER_LEVEL];
+    CLEDController *pCur = CLEDController::head();
 
     int _frame = 0;
     int _actualFrame = 0;
@@ -16,7 +17,6 @@ private:
     void randomize(int arr[], int n);
     inline void dithering(int idx, int r, int r_high_frames, int g, int g_high_frames, int b, int b_high_frames);
     inline int ditherSingle(int idx, int brightness, int high_frames);
-    inline int getIdx(int r, int c);
 
 public:
     DitherManager();

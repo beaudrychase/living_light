@@ -89,29 +89,28 @@ void setup()
 void loop()
 {
     SmoothColor color;
-    switch (timeManager.getDayStatus())
-    {
-    case TimeManager::DayStatus::Night:
-        color = nightGenerator.generateColor(0.1);
-        break;
-    case TimeManager::DayStatus::AstonomicalTwilight:
-        color = nightGenerator.generateColor(0.000000000000000000001);
-        break;
-    case TimeManager::DayStatus::NauticalTwilight:
-        color = nightGenerator.generateColor(0.0001);
-        break;
-    case TimeManager::DayStatus::CivilTwilight:
-        color = twilightGenerator.generateColor(0.005);
-        break;
-    case TimeManager::DayStatus::Horizon:
-        color = horizonGenerator.generateColor(0.10);
-        break;
-    case TimeManager::DayStatus::Day:
-        color = dayGenerator.generateColor(0.16);
-        break;
-    case TimeManager::DayStatus::MidDay:
-        color = midDayGenerator.generateColor(0.21);
-        break;
+    switch(timeManager.getDayStatus()){
+        case TimeManager::DayStatus::Night:
+            color = nightGenerator.generateColor(0.16);
+            break;
+        case TimeManager::DayStatus::AstonomicalTwilight:
+            color = nightGenerator.generateColor(0.18);
+            break;
+        case TimeManager::DayStatus::NauticalTwilight:
+            color = nightGenerator.generateColor(0.20);
+            break;
+        case TimeManager::DayStatus::CivilTwilight:
+            color = twilightGenerator.generateColor(0.25);
+            break;
+        case TimeManager::DayStatus::Horizon:
+            color = horizonGenerator.generateColor(0.60);
+            break;
+        case TimeManager::DayStatus::Day:
+            color = dayGenerator.generateColor(0.85);
+            break;
+        case TimeManager::DayStatus::MidDay:
+            color = midDayGenerator.generateColor(1.0);
+            break;
     }
     // color = color = twilightGenerator.generateColor(0.005);
     // color = nightGenerator.generateColor(5);
