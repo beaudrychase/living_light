@@ -116,7 +116,6 @@ void loop() {
         case TimeManager::DayStatus::MidDay:
             color = midDayGenerator.generateColor(0.21);
             break;
-        
     }
     // color = color = twilightGenerator.generateColor(0.005);
     // color = nightGenerator.generateColor(5);
@@ -153,12 +152,13 @@ void networkingCode( void * pvParameters ) {
 //  Serial.print("Task2 running on core ");
 //  Serial.println(xPortGetCoreID());
 
-  for (;;) {
-    timeManager.updateForNewDay();
-    delay(1000 * 3);
-    
-    handleTelegramMessages(lightOn, randomModeOn, vol_breath_seconds);
-    // ArduinoOTA.handle();
 
-  }
+for (;;) {
+timeManager.updateForNewDay();
+delay(1000 * 3);
+
+handleTelegramMessages(lightOn, randomModeOn, vol_breath_seconds);
+// ArduinoOTA.handle();
+
+}
 }

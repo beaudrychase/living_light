@@ -4,7 +4,6 @@
 
 class DitherManager {
     private:
-    static const int _redOffset = 0;
     static const int _greenOffset = (DITHER_LEVEL / 3);
     static const int _blueOffset = (DITHER_LEVEL / 3) * 2.0;
     int _frameArray[DITHER_LEVEL];
@@ -16,8 +15,8 @@ class DitherManager {
 
     void swap (int *a, int *b);
     void randomize(int arr[], int n);
-    inline void dithering(int idx, int r, int g, int b);
-    inline int ditherSingle(int idx, int channel);
+    inline void dithering(int idx, int r, int r_high_frames, int g, int g_high_frames, int b, int b_high_frames);
+    inline int ditherSingle(int idx, int brightness, int high_frames);
     inline int getIdx(int r, int c);
 
     public:
