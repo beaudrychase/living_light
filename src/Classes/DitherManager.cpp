@@ -1,7 +1,6 @@
 #include <Classes/DitherManager.h>
 
 CRGB _leds[NUM_LEDS];
-int _ledIndexShifter[NUM_LEDS];
 
 void DitherManager::randomize(int arr[], int n)
 {
@@ -18,10 +17,6 @@ DitherManager::DitherManager()
   for (int i = 0; i < DITHER_LEVEL; i++)
   {
     _frameArray[i] = i;
-  }
-  for (int i = 0; i < NUM_LEDS; i++)
-  {
-    _ledIndexShifter[i] = i;
   }
   randomize(_frameArray, DITHER_LEVEL);
 }
