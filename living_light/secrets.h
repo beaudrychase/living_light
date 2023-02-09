@@ -1,4 +1,0 @@
-#define BOTtoken "XXXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-#define CHAT_ID "XXXXXXXXXX"
-#define SSID "ssid"
-#define WIFI_PASS "password"
