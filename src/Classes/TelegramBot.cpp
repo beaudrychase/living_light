@@ -1,9 +1,8 @@
 #include "TelegramBot.h"
 
-UniversalTelegramBot *bot;
 WiFiClientSecure wifiClientSecure;
 
-void initTelegramBot()
+TelegramBot::TelegramBot()
 {
   wifiClientSecure.setCACert(TELEGRAM_CERTIFICATE_ROOT);
   bot = new UniversalTelegramBot(BOTtoken, wifiClientSecure);
@@ -20,7 +19,7 @@ void initTelegramBot()
   Serial.println("Just set commands");
 }
 
-void handleTelegramMessages(volatile bool &lightOn, volatile bool &randomModeOn, volatile int &breath_length)
+void TelegramBot::handleTelegramMessages(volatile bool &lightOn, volatile bool &randomModeOn, volatile int &breath_length)
 {
   wifiClientSecure.setCACert(TELEGRAM_CERTIFICATE_ROOT);
   int numNewMessages = bot->getUpdates(bot->last_message_received + 1);

@@ -13,13 +13,17 @@ void setup()
         Serial.println("Connecting to WiFi..");
         Serial.println(WiFi.status());
     }
-    timeManager.setCurrentTime();
-    timeManager.fetchDaylightInfo();
-    initTelegramBot();
+    Serial.print("Core for Setup: ");
+    Serial.println(xPortGetCoreID());
+    timeManager = new TimeManager();
+    telegramBot = new TelegramBot();
+    timeManager->setCurrentTime();
+    timeManager->fetchDaylightInfo();
+
     xTaskCreatePinnedToCore(
         networkingCode,  /* Task function. */
         "networking",    /* name of task. */
-        20000,           /* Stack size of task */
+        50000,           /* Stack size of task */
         NULL,            /* parameter of the task */
         1,               /* priority of the task */
         &networkingTask, /* Task handle to keep track of created task */
@@ -57,7 +61,7 @@ void setup()
 void loop()
 {
     SmoothColor color;
-    switch (timeManager.getDayStatus())
+    switch (dayStatus)
     {
     case TimeManager::DayStatus::Night:
         color = nightGenerator.generateColor(0.16);
@@ -81,6 +85,7 @@ void loop()
         color = midDayGenerator.generateColor(1.0);
         break;
     }
+
     // color = color = twilightGenerator.generateColor(0.005);
     // color = nightGenerator.generateColor(5);
     // color = dayGenerator.generateColor(0.2);
@@ -119,15 +124,15 @@ SmoothColor randomColor()
 
 void networkingCode(void *pvParameters)
 {
-    //  Serial.print("Task2 running on core ");
-    //  Serial.println(xPortGetCoreID());
-
+    Serial.print("Core for Networking: ");
+    Serial.println(xPortGetCoreID());
     for (;;)
     {
-        timeManager.updateForNewDay();
+        timeManager->updateForNewDay();
+        dayStatus = timeManager->getDayStatus();
         delay(1000 * 3);
 
-        handleTelegramMessages(lightOn, randomModeOn, vol_breath_seconds);
+        telegramBot->handleTelegramMessages(lightOn, randomModeOn, vol_breath_seconds);
         // ArduinoOTA.handle();
     }
 }

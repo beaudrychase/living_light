@@ -14,12 +14,14 @@
 volatile bool lightOn = true;
 volatile bool randomModeOn = false;
 volatile int vol_breath_seconds = 0;
+volatile TimeManager::DayStatus  dayStatus = TimeManager::DayStatus::Night;
 int breath_seconds = 0;
 
 TaskHandle_t networkingTask;
+TimeManager *timeManager;
+TelegramBot *telegramBot;
 
 Breath breath = Breath();
-TimeManager timeManager = TimeManager();
 OrderedColorGenerator midDayGenerator(
     OrderedColorGenerator::Order::BGR,
     0.04, 0.04,

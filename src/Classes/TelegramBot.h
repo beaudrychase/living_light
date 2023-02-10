@@ -17,6 +17,17 @@
 
 #include <secrets.h>
 
+class TelegramBot
+{
+
+private:
+    UniversalTelegramBot *bot;
+
+public:
+    TelegramBot();
+    void handleTelegramMessages(volatile bool &lightOn, volatile bool &randomModeOn, volatile int &breath_length);
+};
+
 extern void initTelegramBot();
 extern void handleTelegramMessages(volatile bool &lightOn, volatile bool &randomModeOn, volatile int &breath_length);
 
