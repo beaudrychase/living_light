@@ -7,6 +7,7 @@ private:
     static const int _greenOffset = (DITHER_LEVEL / 3);
     static const int _blueOffset = (DITHER_LEVEL / 3) * 2.0;
     int _frameArray[DITHER_LEVEL];
+    int _idxArray[NUM_LEDS];
     CLEDController *pCur = CLEDController::head();
 
     int _frame = 0;

@@ -19,6 +19,11 @@ DitherManager::DitherManager()
     _frameArray[i] = i;
   }
   randomize(_frameArray, DITHER_LEVEL);
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    _idxArray[i] = i;
+  }
+  randomize(_idxArray, NUM_LEDS);
 }
 
 inline int DitherManager::ditherSingle(int idx, int brightness, int high_frames)
@@ -29,9 +34,9 @@ inline int DitherManager::ditherSingle(int idx, int brightness, int high_frames)
 inline void DitherManager::dithering(int idx, int r, int r_high_frames, int g, int g_high_frames, int b, int b_high_frames)
 {
   _leds[idx].setRGB(
-      ditherSingle((idx) % DITHER_LEVEL, r, r_high_frames),
-      ditherSingle((idx + _greenOffset) % DITHER_LEVEL, g, g_high_frames),
-      ditherSingle((idx + _blueOffset) % DITHER_LEVEL, b, b_high_frames));
+      ditherSingle(_idxArray[idx], r, r_high_frames),
+      ditherSingle(_idxArray[(idx + _greenOffset) % DITHER_LEVEL], g, g_high_frames),
+      ditherSingle(_idxArray[(idx + _blueOffset) % DITHER_LEVEL], b, b_high_frames));
   // _leds[idx].setRGB(1,1,1);
 }
 
