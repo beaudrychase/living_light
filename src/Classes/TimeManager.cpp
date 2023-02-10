@@ -1,5 +1,7 @@
 #include <Classes/TimeManager.h>
 
+WiFiClientSecure wifiClient;
+
 TimeManager::DayStatus TimeManager::getDayStatus()
 {
   time_t nowTime = getTimeOfDay(now());
@@ -68,28 +70,25 @@ void TimeManager::updateForNewDay()
   }
 }
 
-TimeManager::TimeManager()
-{
-}
-
 void TimeManager::setCurrentTime()
 {
-  HTTPClient http;
+  wifiClient.setCACert(TIMEZONE_CERT);
+  HTTPClient https;
 
   // Build the url for the timezonedb API call
   //    String url = "http://api.timezonedb.com/v2/get-time-zone?key=" + String(TIMEZONE_API_KEY) + "&format=json&by=position&lat=" + LATITUDE + "&lng=" + LONGITUDE;
 
   // Start the http client
-  http.begin(setCurrentTimeUrl);
+  https.begin(wifiClient, _getCurrentTimeUrl);
 
   // Make the request
-  int httpCode = http.GET();
+  int httpCode = https.GET();
 
   // Check for status code
   if (httpCode > 0)
   {
     // Get/print payload from http response
-    String payload = http.getString();
+    String payload = https.getString();
     //      Serial.println(payload);
 
     // Check if request was successful with 200 status
@@ -147,27 +146,28 @@ void TimeManager::setCurrentTime()
   }
 
   // Free resources in use by http client
-  http.end();
+  https.end();
 }
 
 void TimeManager::fetchDaylightInfo()
 {
-  HTTPClient http;
+  wifiClient.setCACert(SOLARTIME_CERT);
+  HTTPClient https;
 
   // Build the url for the sunrise-sunset API call
-  String url = "https://api.sunrise-sunset.org/json?lat=" + String(LATITUDE) + "&lng=" + String(LONGITUDE) + "&date=" + String(year()) + "-" + String(month()) + "-" + String(day()) + "&formatted=0";
+  String url = _getSolarTimingsUrl + String(year()) + "-" + String(month()) + "-" + String(day()) + "&formatted=0";
 
   // Start the http client
-  http.begin(url);
+  https.begin(wifiClient, url);
 
   // Make the request
-  int httpCode = http.GET();
+  int httpCode = https.GET();
 
   // Check for status code
   if (httpCode > 0)
   {
     // Get/print payload from http response
-    String payload = http.getString();
+    String payload = https.getString();
     Serial.println(payload);
 
     // Check if request was successful with 200 status
@@ -235,7 +235,7 @@ void TimeManager::fetchDaylightInfo()
   }
 
   // Free resources in use by http client
-  http.end();
+  https.end();
   setDayTimes();
   printTimes();
 }
@@ -306,4 +306,8 @@ void TimeManager::printTime(time_t time)
   Serial.print(":");
   Serial.print(second(time));
   Serial.println(" ");
+}
+
+TimeManager::TimeManager()
+{
 }
