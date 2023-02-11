@@ -13,8 +13,6 @@ void setup()
         Serial.println("Connecting to WiFi..");
         Serial.println(WiFi.status());
     }
-    Serial.print("Core for Setup: ");
-    Serial.println(xPortGetCoreID());
     timeManager = new TimeManager();
     telegramBot = new TelegramBot();
     timeManager->setCurrentTime();
@@ -124,8 +122,6 @@ SmoothColor randomColor()
 
 void networkingCode(void *pvParameters)
 {
-    Serial.print("Core for Networking: ");
-    Serial.println(xPortGetCoreID());
     for (;;)
     {
         timeManager->updateForNewDay();
