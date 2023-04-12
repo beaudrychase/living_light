@@ -6,7 +6,6 @@
 
 #include <Classes/Breath.h>
 #include <Classes/TimeManager.h>
-#include <Classes/TelegramBot.h>
 #include <Classes/OrderedColorGenerator.h>
 #include <constants.h>
 #include <secrets.h>
@@ -19,7 +18,6 @@ int breath_seconds = 0;
 
 TaskHandle_t networkingTask;
 TimeManager *timeManager;
-TelegramBot *telegramBot;
 
 Breath breath = Breath();
 OrderedColorGenerator midDayGenerator(

@@ -14,7 +14,6 @@ void setup()
         Serial.println(WiFi.status());
     }
     timeManager = new TimeManager();
-    telegramBot = new TelegramBot();
     timeManager->setCurrentTime();
     timeManager->fetchDaylightInfo();
 
@@ -127,8 +126,5 @@ void networkingCode(void *pvParameters)
         timeManager->updateForNewDay();
         dayStatus = timeManager->getDayStatus();
         delay(1000 * 3);
-
-        telegramBot->handleTelegramMessages(lightOn, randomModeOn, vol_breath_seconds);
-        // ArduinoOTA.handle();
     }
 }
