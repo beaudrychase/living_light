@@ -14,8 +14,7 @@ void setup()
         Serial.println(WiFi.status());
     }
     timeManager = new TimeManager();
-    timeManager->setCurrentTime();
-    timeManager->fetchDaylightInfo();
+    timeManager->fetchDaylightInfoAndTime();
 
     xTaskCreatePinnedToCore(
         networkingCode,  /* Task function. */
