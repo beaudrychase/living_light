@@ -58,11 +58,7 @@ TimeManager::DayStatus TimeManager::getDayStatus()
 
 void TimeManager::updateForNewDay()
 {
-  if (now()  >= _night || _sunrise == 0)
-  {
-    fetchDaylightInfoAndTime();
-  }
-  if (day(_sunset) != day(now()))
+  if ( numberOfHours(now() - _lastTimeUpdated) >= 24 || _sunrise == 0)
   {
     fetchDaylightInfoAndTime();
   }
@@ -205,7 +201,8 @@ time_t TimeManager::timeFromDaylightString(const char *daylightString)
 
 void TimeManager::printTimes()
 {
-  time_t timeArray[12] = {
+  time_t timeArray[13] = {
+      _lastTimeUpdated,
       _nightEnd,
       _nauticalDawn,
       _dawn,
