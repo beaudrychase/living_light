@@ -23,17 +23,17 @@ Breath breath = Breath();
 OrderedColorGenerator midDayGenerator(
     OrderedColorGenerator::Order::BGR,
     0.04, 0.04,
-    0.028, 0.03,
-    0.025, 0.03);
+    0.025, 0.035,
+    0.020, 0.035);
 OrderedColorGenerator dayGenerator(
     OrderedColorGenerator::Order::BGR,
-    0.04, 0.04,
-    0.035, 0.04,
-    0.035, 0.04);
+    0.04, 0.05,
+    0.030, 0.04,
+    0.030, 0.04);
 OrderedColorGenerator horizonGenerator(
     OrderedColorGenerator::Order::RBG,
     0.04, 0.04,
-    0.003, 0.0065,
+    0.002, 0.013,
     0.006, 0.01);
 OrderedColorGenerator twilightGenerator(
     OrderedColorGenerator::Order::RGB,
