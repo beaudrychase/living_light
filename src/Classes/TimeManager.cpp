@@ -5,15 +5,15 @@ WiFiClientSecure wifiClient;
 TimeManager::DayStatus TimeManager::getDayStatus()
 {
   time_t nowTime = getTimeOfDay(now());
-  if (nowTime <= getTimeOfDay(_astronomicalTwilightBegin))
+  if (nowTime <= getTimeOfDay(_nightEnd))
   {
     return DayStatus::Night;
   }
-  else if (nowTime <= getTimeOfDay(_nauticalTwilightBegin))
+  else if (nowTime <= getTimeOfDay(_nauticalDawn))
   {
     return DayStatus::AstonomicalTwilight;
   }
-  else if (nowTime <= getTimeOfDay(_civilTwilightBegin))
+  else if (nowTime <= getTimeOfDay(_dawn))
   {
     return DayStatus::NauticalTwilight;
   }
@@ -21,7 +21,7 @@ TimeManager::DayStatus TimeManager::getDayStatus()
   {
     return DayStatus::CivilTwilight;
   }
-  else if (nowTime <= getTimeOfDay(_horizonEnd))
+  else if (nowTime <= getTimeOfDay(_goldenHourEnd))
   {
     return DayStatus::Horizon;
   }
@@ -33,7 +33,7 @@ TimeManager::DayStatus TimeManager::getDayStatus()
   {
     return DayStatus::MidDay;
   }
-  else if (nowTime <= getTimeOfDay(_horizonBegin))
+  else if (nowTime <= getTimeOfDay(_goldenHour))
   {
     return DayStatus::Day;
   }
@@ -41,15 +41,15 @@ TimeManager::DayStatus TimeManager::getDayStatus()
   {
     return DayStatus::Horizon;
   }
-  else if (nowTime <= getTimeOfDay(_civilTwilightEnd))
+  else if (nowTime <= getTimeOfDay(_dusk))
   {
     return DayStatus::CivilTwilight;
   }
-  else if (nowTime <= getTimeOfDay(_nauticalTwilightEnd))
+  else if (nowTime <= getTimeOfDay(_nauticalDusk))
   {
     return DayStatus::NauticalTwilight;
   }
-  else if (nowTime <= getTimeOfDay(_astronomicalTwilightEnd))
+  else if (nowTime <= getTimeOfDay(_night))
   {
     return DayStatus::AstonomicalTwilight;
   }
@@ -58,110 +58,40 @@ TimeManager::DayStatus TimeManager::getDayStatus()
 
 void TimeManager::updateForNewDay()
 {
-  if (_currentDay != day(now()) || _sunrise == 0)
+  if ( numberOfHours(now() - _lastTimeUpdated) >= 24 || _sunrise == 0)
   {
-    setCurrentTime();
-    fetchDaylightInfo();
-  }
-  if (day(_sunset) != day(now()))
-  {
-    setCurrentTime();
-    fetchDaylightInfo();
+    fetchDaylightInfoAndTime();
   }
 }
 
-void TimeManager::setCurrentTime()
+void TimeManager::setCurrentTime(const char* timeString)
 {
-  wifiClient.setCACert(TIMEZONE_CERT);
-  HTTPClient https;
+  // Give the Time library the current time
 
-  // Build the url for the timezonedb API call
-  //    String url = "http://api.timezonedb.com/v2/get-time-zone?key=" + String(TIMEZONE_API_KEY) + "&format=json&by=position&lat=" + LATITUDE + "&lng=" + LONGITUDE;
-
-  // Start the http client
-  https.begin(wifiClient, _getCurrentTimeUrl);
-
-  // Make the request
-  int httpCode = https.GET();
-
-  // Check for status code
-  if (httpCode > 0)
-  {
-    // Get/print payload from http response
-    String payload = https.getString();
-    //      Serial.println(payload);
-
-    // Check if request was successful with 200 status
-    if (httpCode == 200)
-    {
-      // Size of JSON buffer for the response this service gives (as given by https://arduinojson.org/v5/assistant/)
-      const size_t bufferSize = JSON_OBJECT_SIZE(13) + 270;
-
-      // Create JSON buffer with the size above
-      DynamicJsonDocument doc(bufferSize);
-
-      // Parse response from http request
-      auto error = deserializeJson(doc, payload);
-
-      // If parsing failed for some reason, print an error message
-      if (error)
-      {
-        Serial.println("Parsing failed");
-        delay(5000);
-      }
-      else
-      {
-
-        // Grab formatted current time parsed JSON response (just for printing)
-        const char *parsedTime = doc["formatted"];
-
-        // Grab timestamp for current time from parsed JSON
-        long timestamp = doc["timestamp"];
-
-        // Set GMT offset (i.e timezone) from parsed JSON
-        gmtOffset = doc["gmtOffset"];
-
-        // Print out all of that for debugging
-        Serial.print("parsedTime: ");
-        Serial.println(parsedTime);
-        Serial.print("gmtOffset: ");
-        Serial.println(gmtOffset);
-        Serial.print("timestamp: ");
-        Serial.println(timestamp);
-
-        // Give the Time library the current time
-        setTime(timestamp);
-
-        // Set the current date
-        _currentDay = day(now());
-        _lastTimeUpdated = now();
-        Serial.println(now());
-      }
-    }
-  }
-  else
-  {
-
-    Serial.println("Error while fetching current time...");
-  }
-
-  // Free resources in use by http client
-  https.end();
+  // Set the current date
+  time_t current_time = timeFromDaylightString(timeString);
+  setTime(current_time);
+  _currentDay = day(now());
+  _lastTimeUpdated = now();
 }
 
-void TimeManager::fetchDaylightInfo()
+void TimeManager::fetchDaylightInfoAndTime()
 {
-  wifiClient.setCACert(SOLARTIME_CERT);
+  wifiClient.setCACert(_apiCertificate);
   HTTPClient https;
+
+  https.addHeader(_apiKeyName, SUNSET_API_KEY);
 
   // Build the url for the sunrise-sunset API call
-  String url = _getSolarTimingsUrl + String(year()) + "-" + String(month()) + "-" + String(day()) + "&formatted=0";
+  String url = _getSolarTimingsUrl;
 
   // Start the http client
+  
   https.begin(wifiClient, url);
 
   // Make the request
   int httpCode = https.GET();
+  Serial.println(httpCode);
 
   // Check for status code
   if (httpCode > 0)
@@ -174,7 +104,7 @@ void TimeManager::fetchDaylightInfo()
     if (httpCode == 200)
     {
       // Size of JSON buffer for the response this service gives (as given by https://arduinojson.org/v5/assistant/)
-      const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(10) + 500;
+      const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(10) + 1000;
 
       // Create JSON buffer with the size above
       DynamicJsonDocument doc(bufferSize);
@@ -191,35 +121,36 @@ void TimeManager::fetchDaylightInfo()
       }
       else
       {
-        // Get results from parsed JSON
-        const JsonObject &results = doc["results"];
+        setCurrentTime(doc["now"]);
 
-        // Grab twilight begin time
-        const char *civilTwilightBeginParsed = results["civil_twilight_begin"];
-        const char *civilTwilightEndParsed = results["civil_twilight_end"];
-        _civilTwilightBegin = timeFromDaylightString(civilTwilightBeginParsed) + gmtOffset;
-        _civilTwilightEnd = timeFromDaylightString(civilTwilightEndParsed) + gmtOffset;
-
-        const char *nauticalTwilightBeginParsed = results["nautical_twilight_begin"];
-        const char *nauticalTwilightEndParsed = results["nautical_twilight_end"];
-        _nauticalTwilightBegin = timeFromDaylightString(nauticalTwilightBeginParsed) + gmtOffset;
-        _nauticalTwilightEnd = timeFromDaylightString(nauticalTwilightEndParsed) + gmtOffset;
-
-        const char *astronomicalTwilightBeginParsed = results["astronomical_twilight_begin"];
-        const char *astronomicalTwilightEndParsed = results["astronomical_twilight_end"];
-        _astronomicalTwilightBegin = timeFromDaylightString(astronomicalTwilightBeginParsed) + gmtOffset;
-        _astronomicalTwilightEnd = timeFromDaylightString(astronomicalTwilightEndParsed) + gmtOffset;
-
-        // Grab sunrise time from results
-        const char *sunriseParsed = results["sunrise"];
-
-        // Adjust for GMT offset and subtract half of the fade time, so it starts changing before the actual time
-        _sunrise = timeFromDaylightString(sunriseParsed) + gmtOffset;
-
-        // Grab sunset time from results
-        const char *sunsetParsed = results["sunset"];
-        // Adjust for GMT offset and subtract half of the fade time, so it starts changing before the actual time
-        _sunset = timeFromDaylightString(sunsetParsed) + gmtOffset;
+        const char *nadirParsed = doc["nadir"];
+        _nadir = timeFromDaylightString(nadirParsed);
+        const char *nightEndParsed = doc["nightEnd"];
+        _nightEnd = timeFromDaylightString(nightEndParsed);
+        const char *nauticalDawnParsed = doc["nauticalDawn"];
+        _nauticalDawn = timeFromDaylightString(nauticalDawnParsed);
+        const char *dawnParsed = doc["dawn"];
+        _dawn = timeFromDaylightString(dawnParsed);
+        const char *sunriseParsed = doc["sunrise"];
+        _sunrise = timeFromDaylightString(sunriseParsed);
+        const char *sunriseEndParsed = doc["sunriseEnd"];
+        _sunriseEnd = timeFromDaylightString(sunriseEndParsed);
+        const char *goldenHourEndParsed = doc["goldenHourEnd"];
+        _goldenHourEnd = timeFromDaylightString(goldenHourEndParsed);
+        const char *solarNoonParsed = doc["solarNoon"];
+        _solarNoon = timeFromDaylightString(solarNoonParsed);
+        const char *goldenHourParsed = doc["goldenHour"];
+        _goldenHour = timeFromDaylightString(goldenHourParsed);
+        const char *sunsetStartParsed = doc["sunsetStart"];
+        _sunsetStart = timeFromDaylightString(sunsetStartParsed);
+        const char *sunsetParsed = doc["sunset"];
+        _sunset = timeFromDaylightString(sunsetParsed);
+        const char *duskParsed = doc["dusk"];
+        _dusk = timeFromDaylightString(duskParsed);
+        const char *nauticalDuskParsed = doc["nauticalDusk"];
+        _nauticalDusk = timeFromDaylightString(nauticalDuskParsed);
+        const char *nightParsed = doc["night"];
+        _night = timeFromDaylightString(nightParsed);
 
 // If in debug mode, make sunrise time 10 seconds from now, and sunset time 30 seconds after sunrise has finished fading
 #if DEBUG_MODE
@@ -242,10 +173,8 @@ void TimeManager::fetchDaylightInfo()
 
 void TimeManager::setDayTimes()
 {
-  _horizonEnd = _sunrise + (getTimeOfDay(_sunrise) - getTimeOfDay(_civilTwilightBegin));
-  _horizonBegin = _sunset - (getTimeOfDay(_civilTwilightEnd) - getTimeOfDay(_sunset));
-  _midDayBegin = (_sunrise + (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) - (getTimeOfDay(_sunrise) - getTimeOfDay(_civilTwilightBegin));
-  _midDayEnd = (_sunset - (getTimeOfDay(_sunset) - getTimeOfDay(_sunrise) / 2)) + (getTimeOfDay(_civilTwilightEnd) - getTimeOfDay(_sunset));
+  _midDayBegin = (_solarNoon) - (getTimeOfDay(_sunsetStart) - getTimeOfDay(_sunset));
+  _midDayEnd = (_solarNoon) + (getTimeOfDay(_sunsetStart) - getTimeOfDay(_sunset));
 }
 
 time_t TimeManager::getTimeOfDay(time_t time)
@@ -260,6 +189,7 @@ time_t TimeManager::timeFromDaylightString(const char *daylightString)
   int yr, mnth, dy, hr, mn, sec;
 
   // Parse input string into date components
+  Serial.println(daylightString);
   sscanf(daylightString, "%d-%d-%dT%d:%d:%d", &yr, &mnth, &dy, &hr, &mn, &sec);
 
   // Create tmElements_t struct from components
@@ -271,23 +201,23 @@ time_t TimeManager::timeFromDaylightString(const char *daylightString)
 
 void TimeManager::printTimes()
 {
-  time_t timeArray[12] = {
-      _astronomicalTwilightBegin,
-      _nauticalTwilightBegin,
-      _civilTwilightBegin,
+  time_t timeArray[13] = {
+      _lastTimeUpdated,
+      _nightEnd,
+      _nauticalDawn,
+      _dawn,
       _sunrise,
-      _horizonEnd,
+      _goldenHourEnd,
       _midDayBegin,
       _midDayEnd,
-
-      _horizonBegin,
-
+      _goldenHour,
       _sunset,
-      _civilTwilightEnd,
-      _nauticalTwilightEnd,
-      _astronomicalTwilightEnd};
+      _dusk,
+      _nauticalDusk,
+      _night};
   for (int i = 0; i < 12; i++)
   {
+    Serial.println(i);
     printTime(timeArray[i]);
   }
 }

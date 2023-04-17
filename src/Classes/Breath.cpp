@@ -3,15 +3,6 @@
 Breath::Breath()
 {
   _ditherManager = DitherManager();
-  _dynamicCachedBrightness = (float *)malloc((_dynamicLength) * sizeof(float));
-  for (int i = 0; i < STATIC_SMOOTHNESS; ++i)
-  {
-    _staticCachedBrightness[i] = computeBrightnessVal(i, _smoothness);
-  }
-  for (int i = 0; i < _dynamicLength; ++i)
-  {
-    _dynamicCachedBrightness[i] = computeBrightnessVal(i + STATIC_SMOOTHNESS, _smoothness);
-  }
 }
 
 void Breath::turnOff()
@@ -19,24 +10,34 @@ void Breath::turnOff()
   _ditherManager.setColor(0, 0, 0);
 }
 
-void Breath::breathIteration(SmoothColor color, int arrayLen, float *brightnessArray, int offset)
+void Breath::breathIteration(SmoothColor color, int steps)
 {
-  for (int i = 0; i < arrayLen; ++i)
+  float triple_smooth = 3.0 / _smoothness;
+  for (float i = 0; i < steps; i += 1.0)
   {
-    double increasing = min((i + offset) * 3.0, _smoothness) / _smoothness;
-    double smooth_r = color.red * increasing + oldColor.red * (1.0 - increasing);
-    double smooth_g = color.green * increasing + oldColor.green * (1.0 - increasing);
-    double smooth_b = color.blue * increasing + oldColor.blue * (1.0 - increasing);
+    float brightness = (10.0f * DITHER_LEVEL) + (245.0f * DITHER_LEVEL * _c1 * exp(_c2 * i * i + _c3 * i));
+    float increasing = min(i * triple_smooth, 1.0f);
+    float decreasing = 1.0f - increasing;
+    int smooth_r = (color.red * increasing + oldColor.red * decreasing) * brightness;
+    int smooth_g = (color.green * increasing + oldColor.green * decreasing) * brightness;
+    int smooth_b = (color.blue * increasing + oldColor.blue * decreasing) * brightness;
     _ditherManager.setColor(
-        (int)(smooth_r * brightnessArray[i]),
-        (int)(smooth_g * brightnessArray[i]),
-        (int)(smooth_b * brightnessArray[i]));
+        smooth_r,
+        smooth_g,
+        smooth_b);
+    _ditherManager.setColor(
+        smooth_r,
+        smooth_g,
+        smooth_b);
+    // _ditherManager.setColor(
+    //     smooth_r,
+    //     smooth_g,
+    //     smooth_b);
   }
 }
 
 void Breath::breathe(SmoothColor color)
 {
-  breathIteration(color, STATIC_SMOOTHNESS, _staticCachedBrightness, 0);
-  breathIteration(color, _dynamicLength, _dynamicCachedBrightness, STATIC_SMOOTHNESS);
+  breathIteration(color, SMOOTHNESS);
   oldColor = color;
 }
