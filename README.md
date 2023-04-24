@@ -6,6 +6,7 @@ A meditative smart light that follows the solar cycle. While active the light 'b
 
 This firmware is designed to run on a [ESP32-WROOM-32](https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf) that drives a 8x8 Tri-color [DotStar LED](https://cdn-shop.adafruit.com/product-files/2734/2734%20data.pdf) grid.
 
-## Network
+## Infrastructure
 
-The light requires network connectivity to query [timezonedb](https://timezonedb.com/) to get the current time and the timing for the sun's transitions. You can also remotely give it commands by sending it messages through Telegram.
+This firmware relies on the REST API defined in [sunrise-sunset-api](https://github.com/beaudrychase/sunrise-sunset-api).
+
